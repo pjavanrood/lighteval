@@ -202,7 +202,6 @@ class LiteLLMClient(LightevalModel):
             "model": self.model,
             "messages": prompt,
             "response_format": {"type": "text"},
-            "max_tokens": max_new_tokens,
             "logprobs": return_logits if self.provider == "openai" else None,
             "stop": stop_sequence,
             "base_url": self.base_url,
@@ -217,8 +216,12 @@ class LiteLLMClient(LightevalModel):
         else:
             kwargs.update(self.generation_parameters.to_litellm_dict())
 
-        if kwargs.get("max_completion_tokens", None) is None:
+        # Set max tokens - use max_completion_tokens for OpenAI, max_tokens for others
+        # OpenAI doesn't allow both max_tokens and max_completion_tokens to be set
+        if self.provider == "openai":
             kwargs["max_completion_tokens"] = max_new_tokens
+        else:
+            kwargs["max_tokens"] = max_new_tokens
 
         for attempt in range(self.API_MAX_RETRY):
             try:
