@@ -188,11 +188,28 @@ class LiteLLMClient(LightevalModel):
 
         return max_new_tokens
 
-    def __call_api(self, prompt, return_logits, max_new_tokens, num_samples, stop_sequence):  # noqa: C901
+    def _prepare_response_format(self, grammar):
+        """Convert grammar to response_format for litellm."""
+        if not grammar:
+            return {"type": "text"}
+
+        if hasattr(grammar, "type") and grammar.type == "json" and hasattr(grammar, "value"):
+            schema = grammar.value.copy()
+            if schema.get("type") == "json_schema":
+                schema.pop("type")
+            if "type" not in schema:
+                schema["type"] = "object"
+
+            return {"type": "json_schema", "json_schema": {"name": "response", "schema": schema, "strict": True}}
+
+        return {"type": "text"}
+
+    def __call_api(self, prompt, return_logits, max_new_tokens, num_samples, stop_sequence, grammar):  # noqa: C901
         """Make API call with retries."""
         response = LitellmModelResponse()
         stop_sequence = self._prepare_stop_sequence(stop_sequence)
         max_new_tokens = self._prepare_max_new_tokens(max_new_tokens)
+        response_format = self._prepare_response_format(grammar)
 
         if return_logits and not self.provider == "openai":
             logger.warning("Returning logits is not supported for this provider, ignoring.")
@@ -201,7 +218,7 @@ class LiteLLMClient(LightevalModel):
         kwargs = {
             "model": self.model,
             "messages": prompt,
-            "response_format": {"type": "text"},
+            "response_format": response_format,
             "logprobs": return_logits if self.provider == "openai" else None,
             "stop": stop_sequence,
             "base_url": self.base_url,
@@ -263,6 +280,7 @@ class LiteLLMClient(LightevalModel):
         max_new_tokens: int | list[int] | None,
         num_samples: int | list[int],
         stop_sequence: list[str] | None = None,
+        grammar=None,
     ):
         results = []
 
@@ -270,6 +288,7 @@ class LiteLLMClient(LightevalModel):
         max_new_tokenss = [max_new_tokens for _ in prompts] if not isinstance(max_new_tokens, list) else max_new_tokens
         num_sampless = [num_samples for _ in prompts] if not isinstance(num_samples, list) else num_samples
         stop_sequencess = [stop_sequence for _ in prompts]
+        grammars = [grammar for _ in prompts]
         assert (
             len(prompts) == len(return_logitss) == len(max_new_tokenss) == len(num_sampless) == len(stop_sequencess)
         ), (
@@ -285,6 +304,7 @@ class LiteLLMClient(LightevalModel):
                     max_new_tokenss,
                     num_sampless,
                     stop_sequencess,
+                    grammars,
                 ),
                 total=len(prompts),
             ):
@@ -351,17 +371,20 @@ class LiteLLMClient(LightevalModel):
             disable=self.disable_tqdm,
         ):
             contexts = [self.prompt_manager.prepare_prompt_api(doc) for doc in dataset]
-            max_new_tokens = split[0].generation_size  # could be none
+            max_new_tokens = split[0].generation_size
             return_logits = split[0].use_logits
             num_samples = split[0].num_samples
             stop_sequence = split[0].stop_sequences
+            grammar = split[0].generation_grammar
 
             if num_samples > 1 and self.generation_parameters.temperature == 0:
                 raise ValueError(
                     "num_samples > 1 is not supported with temperature=0, please set temperature > 0 or use non sampling metrics."
                 )
 
-            responses = self.__call_api_parallel(contexts, return_logits, max_new_tokens, num_samples, stop_sequence)
+            responses = self.__call_api_parallel(
+                contexts, return_logits, max_new_tokens, num_samples, stop_sequence, grammar
+            )
 
             for response, context in zip(responses, contexts):
                 result: list[str] = [choice.message.content for choice in response.choices]
