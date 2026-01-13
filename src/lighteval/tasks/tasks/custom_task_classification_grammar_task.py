@@ -24,6 +24,7 @@ from typing import Any
 
 import numpy as np
 
+from lighteval.metrics.metrics_sample import SampleLevelComputation
 from lighteval.metrics.utils.metric_utils import SampleLevelMetricGrouping
 from lighteval.models.model_output import ModelResponse
 from lighteval.tasks.lighteval_task import (
@@ -214,6 +215,14 @@ def emotion_classification_metric(model_response: ModelResponse, doc: Doc, **kwa
         }
 
 
+class EmotionClassificationMetric(SampleLevelComputation):
+    """Wrapper class for emotion classification metric to conform to SampleLevelComputation interface."""
+
+    def compute(self, doc: Doc, model_response: ModelResponse, **kwargs) -> dict[str, float]:
+        """Compute emotion classification metrics for a single sample."""
+        return emotion_classification_metric(model_response=model_response, doc=doc, **kwargs)
+
+
 # Define the metric group for emotion classification evaluation
 # This configures both sample-level and corpus-level metric calculations
 emotion_classification_group = SampleLevelMetricGrouping(
@@ -228,7 +237,7 @@ emotion_classification_group = SampleLevelMetricGrouping(
         "total_samples": True,  # More samples processed is better
     },
     category=SamplingMethod.GENERATIVE,  # Classification via text generation
-    sample_level_fn=emotion_classification_metric,  # Function for individual samples
+    sample_level_fn=EmotionClassificationMetric(),  # SampleLevelComputation instance
     corpus_level_fn={
         "exact_match": np.mean,  # Average accuracy across all samples
         "unknown_prediction": np.mean,  # Proportion of parsing failures
@@ -399,7 +408,7 @@ if __name__ == "__main__":
     print(f"  Name: {task.name}")
     print(f"  Dataset: {task.hf_repo}")
     print(f"  Splits: {task.evaluation_splits}")
-    print(f"  Metrics: {[m.metric_name for m in task.metric]}")
+    print(f"  Metrics: {[m.metric_name for m in task.metrics]}")
     print(f"  Generation size: {task.generation_size}")
     print(f"  Grammar constrained: {task.generation_grammar is not None}")
     print(f"  Stop sequences: {task.stop_sequence}")
