@@ -220,13 +220,14 @@ class LiteLLMClient(LightevalModel):
             "messages": prompt,
             "response_format": response_format,
             "logprobs": return_logits if self.provider == "openai" else None,
-            "stop": stop_sequence,
             "base_url": self.base_url,
             "api_key": self.api_key,
             "n": num_samples,
             "caching": True,
             "timeout": self.timeout,
         }
+        if stop_sequence:
+            kwargs["stop"] = stop_sequence
 
         if "o1" in self.model:
             logger.warning("O1 models do not support temperature, top_p, stop sequence. Disabling.")
