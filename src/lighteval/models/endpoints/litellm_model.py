@@ -241,6 +241,7 @@ class LiteLLMClient(LightevalModel):
         else:
             kwargs["max_tokens"] = max_new_tokens
 
+        errors = []
         for attempt in range(self.API_MAX_RETRY):
             try:
                 response = litellm.completion(**kwargs)
@@ -255,6 +256,7 @@ class LiteLLMClient(LightevalModel):
 
                 return response
             except litellm.BadRequestError as e:
+                errors.append(e)
                 if "message" in e.__dict__:
                     error_string = (
                         "The response was filtered due to the prompt triggering Microsoft's content management policy"
@@ -263,6 +265,7 @@ class LiteLLMClient(LightevalModel):
                         logger.warning(f"{error_string}. Returning empty response.")
                         return LitellmModelResponse()
             except Exception as e:
+                errors.append(e)
                 wait_time = min(
                     64, self.API_RETRY_SLEEP * (self.API_RETRY_MULTIPLIER**attempt)
                 )  # Exponential backoff with max 64s
@@ -271,7 +274,7 @@ class LiteLLMClient(LightevalModel):
                 )
                 time.sleep(wait_time)
 
-        logger.error(f"API call failed after {self.API_MAX_RETRY} attempts, returning empty response.")
+        logger.error(f"API call failed after {self.API_MAX_RETRY} attempts, returning empty response. Errors: {errors}")
         return LitellmModelResponse()
 
     def __call_api_parallel(

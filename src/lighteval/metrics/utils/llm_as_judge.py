@@ -313,6 +313,7 @@ class JudgeLM:
 
         def __call_api(prompt):
             error_message = "ERROR: Failed to get response from the API."
+            errors = []
             for _ in range(self.API_MAX_RETRY):
                 try:
                     max_new_tokens = self.max_tokens
@@ -334,7 +335,8 @@ class JudgeLM:
                         kwargs["api_key"] = self.api_key
                     if self.url is not None:
                         kwargs["base_url"] = self.url
-
+                    
+                    print(kwargs)
                     response = litellm.completion(**kwargs)
                     text = response.choices[0].message.content
                     if not text or text == error_message:
@@ -347,9 +349,11 @@ class JudgeLM:
                             return error_message
                     return text
                 except Exception as e:
+                    print(f"Error in API call: {e}")
                     logger.warning(f"{type(e), e}")
+                    errors.append(e)
                     time.sleep(self.API_RETRY_SLEEP)
-            return error_message
+            return f"{error_message}, {errors}"
 
         results = []
         with ThreadPoolExecutor(self.backend_options.concurrent_requests) as executor:
