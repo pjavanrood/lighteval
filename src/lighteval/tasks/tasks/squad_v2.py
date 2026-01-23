@@ -49,7 +49,7 @@ squad_v2 = LightevalTaskConfig(
     few_shots_split="train",
     stop_sequence=["\n", "Question:", "question:"],
     generation_size=200,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     version=1,
 )
 

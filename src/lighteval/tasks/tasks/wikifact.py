@@ -37,7 +37,7 @@ wikifact_applies_to_jurisdiction = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -52,7 +52,7 @@ wikifact_atomic_number = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -67,7 +67,7 @@ wikifact_author = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -82,7 +82,7 @@ wikifact_award_received = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -97,7 +97,7 @@ wikifact_basic_form_of_government = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -112,7 +112,7 @@ wikifact_capital = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -127,7 +127,7 @@ wikifact_capital_of = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -142,7 +142,7 @@ wikifact_central_bank = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -157,7 +157,7 @@ wikifact_composer = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -172,7 +172,7 @@ wikifact_continent = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -187,7 +187,7 @@ wikifact_country = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -202,7 +202,7 @@ wikifact_country_of_citizenship = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -217,7 +217,7 @@ wikifact_country_of_origin = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -232,7 +232,7 @@ wikifact_creator = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -247,7 +247,7 @@ wikifact_currency = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -262,7 +262,7 @@ wikifact_defendant = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -277,7 +277,7 @@ wikifact_developer = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -292,7 +292,7 @@ wikifact_diplomatic_relation = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -307,7 +307,7 @@ wikifact_director = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -322,7 +322,7 @@ wikifact_discoverer_or_inventor = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -337,7 +337,7 @@ wikifact_drug_or_therapy_used_for_treatment = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -352,7 +352,7 @@ wikifact_educated_at = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -367,7 +367,7 @@ wikifact_electron_configuration = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -382,7 +382,7 @@ wikifact_employer = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -397,7 +397,7 @@ wikifact_field_of_work = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -412,7 +412,7 @@ wikifact_file_extension = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -427,7 +427,7 @@ wikifact_genetic_association = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -442,7 +442,7 @@ wikifact_genre = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -457,7 +457,7 @@ wikifact_has_part = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -472,7 +472,7 @@ wikifact_head_of_government = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -487,7 +487,7 @@ wikifact_head_of_state = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -502,7 +502,7 @@ wikifact_headquarters_location = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -517,7 +517,7 @@ wikifact_industry = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -532,7 +532,7 @@ wikifact_influenced_by = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -547,7 +547,7 @@ wikifact_instance_of = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -562,7 +562,7 @@ wikifact_instrument = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -577,7 +577,7 @@ wikifact_language_of_work_or_name = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -592,7 +592,7 @@ wikifact_languages_spoken_written_or_signed = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -607,7 +607,7 @@ wikifact_laws_applied = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -622,7 +622,7 @@ wikifact_located_in_the_administrative_territorial_entity = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -637,7 +637,7 @@ wikifact_location = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -652,7 +652,7 @@ wikifact_location_of_discovery = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -667,7 +667,7 @@ wikifact_location_of_formation = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -682,7 +682,7 @@ wikifact_majority_opinion_by = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -697,7 +697,7 @@ wikifact_manufacturer = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -712,7 +712,7 @@ wikifact_measured_physical_quantity = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -727,7 +727,7 @@ wikifact_medical_condition_treated = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -742,7 +742,7 @@ wikifact_member_of = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -757,7 +757,7 @@ wikifact_member_of_political_party = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -772,7 +772,7 @@ wikifact_member_of_sports_team = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -787,7 +787,7 @@ wikifact_movement = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -802,7 +802,7 @@ wikifact_named_after = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -817,7 +817,7 @@ wikifact_native_language = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -832,7 +832,7 @@ wikifact_number_of_processor_cores = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -847,7 +847,7 @@ wikifact_occupation = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -862,7 +862,7 @@ wikifact_office_held_by_head_of_government = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -877,7 +877,7 @@ wikifact_office_held_by_head_of_state = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -892,7 +892,7 @@ wikifact_official_language = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -907,7 +907,7 @@ wikifact_operating_system = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -922,7 +922,7 @@ wikifact_original_language_of_film_or_TV_show = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -937,7 +937,7 @@ wikifact_original_network = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -952,7 +952,7 @@ wikifact_overrules = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -967,7 +967,7 @@ wikifact_owned_by = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -982,7 +982,7 @@ wikifact_part_of = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -997,7 +997,7 @@ wikifact_participating_team = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -1012,7 +1012,7 @@ wikifact_place_of_birth = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -1027,7 +1027,7 @@ wikifact_place_of_death = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -1042,7 +1042,7 @@ wikifact_plaintiff = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -1057,7 +1057,7 @@ wikifact_position_held = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -1072,7 +1072,7 @@ wikifact_position_played_on_team = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -1087,7 +1087,7 @@ wikifact_programming_language = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -1102,7 +1102,7 @@ wikifact_recommended_unit_of_measurement = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -1117,7 +1117,7 @@ wikifact_record_label = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -1132,7 +1132,7 @@ wikifact_religion = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -1147,7 +1147,7 @@ wikifact_repealed_by = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -1162,7 +1162,7 @@ wikifact_shares_border_with = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -1177,7 +1177,7 @@ wikifact_solved_by = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -1192,7 +1192,7 @@ wikifact_statement_describes = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -1207,7 +1207,7 @@ wikifact_stock_exchange = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -1222,7 +1222,7 @@ wikifact_subclass_of = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -1237,7 +1237,7 @@ wikifact_subsidiary = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -1252,7 +1252,7 @@ wikifact_symptoms_and_signs = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -1267,7 +1267,7 @@ wikifact_therapeutic_area = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -1282,7 +1282,7 @@ wikifact_time_of_discovery_or_invention = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -1297,7 +1297,7 @@ wikifact_twinned_administrative_body = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -1312,7 +1312,7 @@ wikifact_work_location = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=8,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )

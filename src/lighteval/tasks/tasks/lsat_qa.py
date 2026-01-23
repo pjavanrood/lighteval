@@ -47,7 +47,7 @@ lsat_qa = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -62,7 +62,7 @@ lsat_qa_assignment = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -77,7 +77,7 @@ lsat_qa_grouping = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -92,7 +92,7 @@ lsat_qa_miscellaneous = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -107,7 +107,7 @@ lsat_qa_ordering = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )

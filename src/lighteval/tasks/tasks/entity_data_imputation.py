@@ -45,6 +45,7 @@ entity_data_imputation_Buy = LightevalTaskConfig(
     generation_size=5,
     metrics=[
         Metrics.exact_match,
+        Metrics.f1_score,
     ],
     stop_sequence=["\n"],
     version=0,
@@ -63,6 +64,7 @@ entity_data_imputation_Restaurant = LightevalTaskConfig(
     generation_size=5,
     metrics=[
         Metrics.exact_match,
+        Metrics.f1_score,
     ],
     stop_sequence=["\n"],
     version=0,

@@ -43,7 +43,7 @@ numeracy_linear_example = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=20,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -58,7 +58,7 @@ numeracy_linear_standard = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=20,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -73,7 +73,7 @@ numeracy_parabola_example = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=20,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -88,7 +88,7 @@ numeracy_parabola_standard = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=20,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -103,7 +103,7 @@ numeracy_paraboloid_example = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=20,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -118,7 +118,7 @@ numeracy_paraboloid_standard = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=20,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -133,7 +133,7 @@ numeracy_plane_example = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=20,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -148,7 +148,7 @@ numeracy_plane_standard = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=20,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )

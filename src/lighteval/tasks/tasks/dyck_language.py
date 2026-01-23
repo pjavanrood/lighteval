@@ -57,7 +57,7 @@ dyck_language_2 = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -76,7 +76,7 @@ dyck_language_3 = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -95,7 +95,7 @@ dyck_language_4 = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )

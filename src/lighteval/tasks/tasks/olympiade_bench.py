@@ -309,7 +309,7 @@ for subset in olympiad_bench_subsets:
             prompt_function=olympiad_bench_prompt,
             hf_repo="Hothan/OlympiadBench",
             hf_subset=subset,
-            metrics=[Metrics.exact_match],
+            metrics=[Metrics.exact_match, Metrics.f1_score],
             sample_fields=create_record_to_sample(subset),
             solver=[generate(cache=True)],
             scorer=olympiad_bench_scorer(language=language),

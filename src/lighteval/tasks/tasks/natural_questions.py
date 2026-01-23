@@ -38,7 +38,7 @@ natural_questions = LightevalTaskConfig(
     few_shots_split="few_shot",
     generation_size=250,
     stop_sequence=["\n", "Question:", "question:"],
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     version=1,
 )
 

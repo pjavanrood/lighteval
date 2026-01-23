@@ -75,7 +75,7 @@ drop_qa = LightevalTaskConfig(
     few_shots_split="train",
     generation_size=250,
     stop_sequence=["Question:", "question:", "\n"],
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     version=1,
 )
 

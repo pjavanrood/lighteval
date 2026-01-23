@@ -118,7 +118,7 @@ arc_agi_2 = LightevalTaskConfig(
     evaluation_splits=["test"],
     few_shots_split=None,
     few_shots_select=None,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=None,
     sample_fields=record_to_sample,
     solver=[generate(cache=True)],

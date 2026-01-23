@@ -43,6 +43,7 @@ med_dialog_healthcaremagic = LightevalTaskConfig(
     generation_size=128,
     metrics=[
         Metrics.exact_match,
+        Metrics.f1_score,
     ],
     stop_sequence=["\n"],
     version=0,
@@ -61,6 +62,7 @@ med_dialog_icliniq = LightevalTaskConfig(
     generation_size=128,
     metrics=[
         Metrics.exact_match,
+        Metrics.f1_score,
     ],
     stop_sequence=["\n"],
     version=0,

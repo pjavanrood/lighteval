@@ -53,7 +53,7 @@ mmlu_abstract_algebra = LightevalTaskConfig(
     few_shots_split="dev",
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -68,7 +68,7 @@ mmlu_anatomy = LightevalTaskConfig(
     few_shots_split="dev",
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -83,7 +83,7 @@ mmlu_astronomy = LightevalTaskConfig(
     few_shots_split="dev",
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -98,7 +98,7 @@ mmlu_business_ethics = LightevalTaskConfig(
     few_shots_split="dev",
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -113,7 +113,7 @@ mmlu_clinical_knowledge = LightevalTaskConfig(
     few_shots_split="dev",
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -128,7 +128,7 @@ mmlu_college_biology = LightevalTaskConfig(
     few_shots_split="dev",
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -143,7 +143,7 @@ mmlu_college_chemistry = LightevalTaskConfig(
     few_shots_split="dev",
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -158,7 +158,7 @@ mmlu_college_computer_science = LightevalTaskConfig(
     few_shots_split="dev",
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -173,7 +173,7 @@ mmlu_college_mathematics = LightevalTaskConfig(
     few_shots_split="dev",
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -188,7 +188,7 @@ mmlu_college_medicine = LightevalTaskConfig(
     few_shots_split="dev",
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -203,7 +203,7 @@ mmlu_college_physics = LightevalTaskConfig(
     few_shots_split="dev",
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -218,7 +218,7 @@ mmlu_computer_security = LightevalTaskConfig(
     few_shots_split="dev",
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -233,7 +233,7 @@ mmlu_conceptual_physics = LightevalTaskConfig(
     few_shots_split="dev",
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -248,7 +248,7 @@ mmlu_econometrics = LightevalTaskConfig(
     few_shots_split="dev",
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -263,7 +263,7 @@ mmlu_electrical_engineering = LightevalTaskConfig(
     few_shots_split="dev",
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -278,7 +278,7 @@ mmlu_elementary_mathematics = LightevalTaskConfig(
     few_shots_split="dev",
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -293,7 +293,7 @@ mmlu_formal_logic = LightevalTaskConfig(
     few_shots_split="dev",
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -308,7 +308,7 @@ mmlu_global_facts = LightevalTaskConfig(
     few_shots_split="dev",
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -323,7 +323,7 @@ mmlu_high_school_biology = LightevalTaskConfig(
     few_shots_split="dev",
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -338,7 +338,7 @@ mmlu_high_school_chemistry = LightevalTaskConfig(
     few_shots_split="dev",
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -353,7 +353,7 @@ mmlu_high_school_computer_science = LightevalTaskConfig(
     few_shots_split="dev",
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -368,7 +368,7 @@ mmlu_high_school_european_history = LightevalTaskConfig(
     few_shots_split="dev",
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -383,7 +383,7 @@ mmlu_high_school_geography = LightevalTaskConfig(
     few_shots_split="dev",
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -398,7 +398,7 @@ mmlu_high_school_government_and_politics = LightevalTaskConfig(
     few_shots_split="dev",
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -413,7 +413,7 @@ mmlu_high_school_macroeconomics = LightevalTaskConfig(
     few_shots_split="dev",
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -428,7 +428,7 @@ mmlu_high_school_mathematics = LightevalTaskConfig(
     few_shots_split="dev",
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -443,7 +443,7 @@ mmlu_high_school_microeconomics = LightevalTaskConfig(
     few_shots_split="dev",
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -458,7 +458,7 @@ mmlu_high_school_physics = LightevalTaskConfig(
     few_shots_split="dev",
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -473,7 +473,7 @@ mmlu_high_school_psychology = LightevalTaskConfig(
     few_shots_split="dev",
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -488,7 +488,7 @@ mmlu_high_school_statistics = LightevalTaskConfig(
     few_shots_split="dev",
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -503,7 +503,7 @@ mmlu_high_school_us_history = LightevalTaskConfig(
     few_shots_split="dev",
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -518,7 +518,7 @@ mmlu_high_school_world_history = LightevalTaskConfig(
     few_shots_split="dev",
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -533,7 +533,7 @@ mmlu_human_aging = LightevalTaskConfig(
     few_shots_split="dev",
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -548,7 +548,7 @@ mmlu_human_sexuality = LightevalTaskConfig(
     few_shots_split="dev",
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -563,7 +563,7 @@ mmlu_international_law = LightevalTaskConfig(
     few_shots_split="dev",
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -578,7 +578,7 @@ mmlu_jurisprudence = LightevalTaskConfig(
     few_shots_split="dev",
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -593,7 +593,7 @@ mmlu_logical_fallacies = LightevalTaskConfig(
     few_shots_split="dev",
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -608,7 +608,7 @@ mmlu_machine_learning = LightevalTaskConfig(
     few_shots_split="dev",
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -623,7 +623,7 @@ mmlu_management = LightevalTaskConfig(
     few_shots_split="dev",
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -638,7 +638,7 @@ mmlu_marketing = LightevalTaskConfig(
     few_shots_split="dev",
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -653,7 +653,7 @@ mmlu_medical_genetics = LightevalTaskConfig(
     few_shots_split="dev",
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -668,7 +668,7 @@ mmlu_miscellaneous = LightevalTaskConfig(
     few_shots_split="dev",
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -683,7 +683,7 @@ mmlu_moral_disputes = LightevalTaskConfig(
     few_shots_split="dev",
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -698,7 +698,7 @@ mmlu_moral_scenarios = LightevalTaskConfig(
     few_shots_split="dev",
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -713,7 +713,7 @@ mmlu_nutrition = LightevalTaskConfig(
     few_shots_split="dev",
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -728,7 +728,7 @@ mmlu_philosophy = LightevalTaskConfig(
     few_shots_split="dev",
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -743,7 +743,7 @@ mmlu_prehistory = LightevalTaskConfig(
     few_shots_split="dev",
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -758,7 +758,7 @@ mmlu_professional_accounting = LightevalTaskConfig(
     few_shots_split="dev",
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -773,7 +773,7 @@ mmlu_professional_law = LightevalTaskConfig(
     few_shots_split="dev",
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -788,7 +788,7 @@ mmlu_professional_medicine = LightevalTaskConfig(
     few_shots_split="dev",
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -803,7 +803,7 @@ mmlu_professional_psychology = LightevalTaskConfig(
     few_shots_split="dev",
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -818,7 +818,7 @@ mmlu_public_relations = LightevalTaskConfig(
     few_shots_split="dev",
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -833,7 +833,7 @@ mmlu_security_studies = LightevalTaskConfig(
     few_shots_split="dev",
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -848,7 +848,7 @@ mmlu_sociology = LightevalTaskConfig(
     few_shots_split="dev",
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -863,7 +863,7 @@ mmlu_us_foreign_policy = LightevalTaskConfig(
     few_shots_split="dev",
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -878,7 +878,7 @@ mmlu_virology = LightevalTaskConfig(
     few_shots_split="dev",
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
@@ -893,7 +893,7 @@ mmlu_world_religions = LightevalTaskConfig(
     few_shots_split="dev",
     few_shots_select=None,
     generation_size=5,
-    metrics=[Metrics.exact_match],
+    metrics=[Metrics.exact_match, Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )

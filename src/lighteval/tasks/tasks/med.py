@@ -77,6 +77,7 @@ med_mcqa = LightevalTaskConfig(
     generation_size=5,
     metrics=[
         Metrics.exact_match,
+        Metrics.f1_score,
     ],
     stop_sequence=["\n"],
     version=0,
@@ -95,6 +96,7 @@ med_paragraph_simplification = LightevalTaskConfig(
     generation_size=512,
     metrics=[
         Metrics.exact_match,
+        Metrics.f1_score,
     ],
     stop_sequence=["\n"],
     version=0,
@@ -113,6 +115,7 @@ med_qa = LightevalTaskConfig(
     generation_size=5,
     metrics=[
         Metrics.exact_match,
+        Metrics.f1_score,
     ],
     stop_sequence=["\n"],
     version=0,

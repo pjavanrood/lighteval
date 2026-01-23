@@ -84,6 +84,7 @@ boolq = LightevalTaskConfig(
     generation_size=5,
     metrics=[
         Metrics.exact_match,
+        Metrics.f1_score,
     ],
     stop_sequence=["\n"],
     version=0,
@@ -105,6 +106,7 @@ boolq_contrastset = LightevalTaskConfig(
     generation_size=5,
     metrics=[
         Metrics.exact_match,
+        Metrics.f1_score,
     ],
     stop_sequence=["\n"],
     version=0,
