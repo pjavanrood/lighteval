@@ -18,7 +18,6 @@ paper:
 https://aclanthology.org/2020.findings-emnlp.301/
 """
 
-from lighteval.metrics.metrics import Metrics
 from lighteval.tasks.lighteval_task import LightevalTaskConfig
 from lighteval.tasks.requests import Doc
 
@@ -43,7 +42,7 @@ real_toxicity_prompts = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=20,
-    metrics=[Metrics.exact_match],
+    metrics=[],  # Generation task - no ground truth to compare against
     stop_sequence=["\n"],
     version=0,
 )
