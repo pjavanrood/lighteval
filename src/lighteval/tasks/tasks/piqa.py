@@ -3,7 +3,7 @@ name:
 Piqa
 
 dataset:
-ybisk/piqa
+lighteval/piqa
 
 abstract:
 PIQA is a benchmark for testing physical commonsense reasoning. It contains
@@ -47,7 +47,7 @@ def piqa_prompt(line, task_name: str = None):
 piqa = LightevalTaskConfig(
     name="piqa",
     prompt_function=piqa_prompt,
-    hf_repo="ybisk/piqa",
+    hf_repo="lighteval/piqa",
     hf_subset="plain_text",
     hf_avail_splits=["train", "test", "validation"],
     evaluation_splits=["validation", "test"],
