@@ -1,0 +1,17 @@
+model_parameters:
+  model_name: "gpt-3.5-turbo"
+  base_url: null
+  api_key: null
+  organization: null
+  concurrent_requests: 10
+  max_model_length: null
+  api_max_retry: 8
+  api_retry_sleep: 1.0
+  api_retry_multiplier: 2.0
+  timeout: null
+  generation_parameters:
+    temperature: 0.7
+    max_new_tokens: 256
+    top_p: 0.9
+    seed: 42
+    frequency_penalty: 0.0
