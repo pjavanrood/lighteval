@@ -3,7 +3,7 @@ name:
 Med
 
 dataset:
-lighteval/med_mcqa, lighteval/med_paragraph_simplification, bigbio/med_qa
+lighteval/med_mcqa, lighteval/med_paragraph_simplification, GBaker/MedQA-USMLE-4-options
 
 abstract:
 A Large-scale Multi-Subject Multi-Choice Dataset for Medical domain Question Answering
@@ -54,12 +54,14 @@ def med_paragraph_simplification_prompt(line, task_name: str = None):
 
 def med_qa_prompt(line, task_name: str = None):
     query = f"Give a letter answer among A, B, C or D.\nQuestion: {line['question']}\n"
-    query += "".join([f"{option['key']}. {option['value']}\n" for option in line["options"]])
+    options = line["options"]
+    for key in ["A", "B", "C", "D"]:
+        query += f"{key}. {options[key]}\n"
     query += "Answer:"
     return Doc(
         task_name=task_name,
         query=query,
-        choices=[opt["key"] for opt in line["options"]],
+        choices=["A", "B", "C", "D"],
         gold_index=list(ascii_uppercase).index(line["answer_idx"]),
         instruction="Give a letter answer among A, B, C or D.\n",
     )
@@ -106,10 +108,10 @@ med_paragraph_simplification = LightevalTaskConfig(
 med_qa = LightevalTaskConfig(
     name="med_qa",
     prompt_function=med_qa_prompt,
-    hf_repo="bigbio/med_qa",
-    hf_subset="med_qa_en_source",
-    hf_avail_splits=["train", "test", "validation"],
-    evaluation_splits=["validation", "test"],
+    hf_repo="GBaker/MedQA-USMLE-4-options",
+    hf_subset="default",
+    hf_avail_splits=["train", "test"],
+    evaluation_splits=["test"],
     few_shots_split=None,
     few_shots_select=None,
     generation_size=5,
