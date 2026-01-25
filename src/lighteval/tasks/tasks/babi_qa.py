@@ -43,11 +43,18 @@ def babi_qa_prompt(line, task_name: str = None):
 
     results = []
     story = []
-    for type, text, answer in zip(line["type"], line["text"], line["answer"]):
-        if type == "supporting fact":
+    for type_val, text, answer in zip(line["type"], line["text"], line["answer"]):
+        # Handle both string types (original) and numeric types (parquet version)
+        # type=0 or "supporting fact" means context, type=1 or "question" means question
+        is_context = type_val == 0 or type_val == "supporting fact"
+        is_question = type_val == 1 or type_val == "question"
+
+        if is_context:
             story.append(text)
-        elif type == "question":
-            text = text.replace("_", process_path(answer))
+        elif is_question:
+            # Only process path if text contains underscore (path navigation questions)
+            if "_" in text:
+                text = text.replace("_", process_path(answer))
             query = "\n".join(story) + f"\nQuestion: {text}\nAnswer: "
             results.append(Doc(task_name=task_name, query=query, choices=[answer], gold_index=0))
             story = []
@@ -59,7 +66,7 @@ babi_qa = LightevalTaskConfig(
     prompt_function=babi_qa_prompt,
     hf_repo="facebook/babi_qa",
     hf_revision="refs/convert/parquet",
-    hf_subset="en-valid-qa1",
+    hf_subset="default",
     hf_avail_splits=["train", "test", "validation"],
     evaluation_splits=["validation", "test"],
     few_shots_split=None,
