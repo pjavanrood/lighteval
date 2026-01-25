@@ -58,6 +58,7 @@ babi_qa = LightevalTaskConfig(
     name="babi_qa",
     prompt_function=babi_qa_prompt,
     hf_repo="facebook/babi_qa",
+    hf_revision="refs/convert/parquet",
     hf_subset="en-valid-qa1",
     hf_avail_splits=["train", "test", "validation"],
     evaluation_splits=["validation", "test"],
