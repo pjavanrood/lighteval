@@ -69,6 +69,14 @@ class TestOpenAIModelConfig:
                         "response_format": None,
                     },
                     "cache_dir": "~/.cache/huggingface/lighteval",
+                    "tokenizer_type": "tiktoken",
+                    "tokenizer_encoding": None,
+                    "is_reasoning_model": False,
+                    "supports_temperature": True,
+                    "supports_stop_sequences": True,
+                    "max_tokens_param_name": "max_completion_tokens",
+                    "provider_name": "openai",
+                    "provider": None,
                 },
             ),
         ],
@@ -253,15 +261,14 @@ class TestOpenAIClient:
 
     def test_is_reasoning_model(self, mock_openai_client, mock_tiktoken):
         """Test reasoning model detection."""
-        # o1 models
-        for model_name in ["o1", "o1-mini", "o1-preview", "o1-preview-2024-09-12"]:
-            config = OpenAIModelConfig(model_name=model_name)
-            client = OpenAIClient(config)
-            assert client._is_reasoning_model() is True
+        # Reasoning model
+        config = OpenAIModelConfig(model_name="o1", is_reasoning_model=True)
+        client = OpenAIClient(config)
+        assert client._is_reasoning_model() is True
 
-        # Non-o1 models
-        for model_name in ["gpt-4", "gpt-3.5-turbo", "gpt-4o"]:
-            config = OpenAIModelConfig(model_name=model_name)
+        # Non-reasoning models
+        for model_name in ["gpt-4", "gpt-3.5-turbo", "gpt-4o", "o1"]:
+            config = OpenAIModelConfig(model_name=model_name, is_reasoning_model=False)
             client = OpenAIClient(config)
             assert client._is_reasoning_model() is False
 
@@ -292,7 +299,7 @@ class TestOpenAIClient:
         assert client._prepare_max_new_tokens(-1) is None
 
         # Reasoning model (should multiply by 10)
-        config_o1 = OpenAIModelConfig(model_name="o1-preview")
+        config_o1 = OpenAIModelConfig(model_name="o1-preview", is_reasoning_model=True)
         client_o1 = OpenAIClient(config_o1)
 
         assert client_o1._prepare_max_new_tokens(100) == 1000

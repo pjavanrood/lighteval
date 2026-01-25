@@ -52,29 +52,53 @@ else:
     tiktoken = Mock()
 
 
-class OpenAIModelConfig(ModelConfig):
-    """Configuration class for OpenAI API client.
+class OpenAICompatibleModelConfig(ModelConfig):
+    """Configuration class for OpenAI-compatible API clients.
 
-    This configuration is used to connect to OpenAI's API for language model inference.
-    It supports all OpenAI models including GPT-4, GPT-3.5-Turbo, and o1 series.
+    This configuration supports any API endpoint that follows the OpenAI API specification,
+    including OpenAI, Azure OpenAI, Together AI, Anyscale, vLLM deployments, LM Studio,
+    Ollama (with OpenAI compatibility mode), and other custom deployments.
 
-    OpenAI API doc: https://platform.openai.com/docs/api-reference/introduction
+    OpenAI API specification: https://platform.openai.com/docs/api-reference/introduction
 
     Attributes:
         model_name (str):
-            OpenAI model identifier (e.g., "gpt-4", "gpt-3.5-turbo", "gpt-4o").
-        api_key (str | None):
-            OpenAI API key for authentication. If None, reads from OPENAI_API_KEY environment variable.
+            Model identifier (e.g., "gpt-4", "deepseek-chat", "llama-3-70b").
+        provider (str | None):
+            Optional provider name. If None, defaults to "openai".
+            Examples: "openai", "deepseek", "together", etc.
         base_url (str | None):
             Custom base URL for the API. If None, uses OpenAI's default URL (https://api.openai.com/v1).
-            Useful for using custom endpoints or compatible services.
+            For other providers, set this to their endpoint (e.g., "https://api.deepseek.com/v1").
+        api_key (str | None):
+            API key for authentication. If None, reads from OPENAI_API_KEY environment variable.
         organization (str | None):
-            OpenAI organization ID. If None, uses default organization from account.
+            Organization ID (if supported by provider). If None, uses default organization from account.
         concurrent_requests (int):
             Maximum number of concurrent API requests to execute in parallel.
             Higher values can improve throughput but may hit rate limits. Default is 10.
         max_model_length (int | None):
-            Maximum context length for the model. If None, infers from model name using tiktoken.
+            Maximum context length for the model. If None, uses default (4096).
+            It's recommended to set this explicitly for non-OpenAI providers.
+        tokenizer_type (str):
+            Type of tokenizer to use. Options: "tiktoken" (default), "cl100k_base", or "none".
+            Set to "none" if you want to disable tokenization or use a custom approach.
+        tokenizer_encoding (str | None):
+            Specific tiktoken encoding to use (e.g., "cl100k_base", "p50k_base").
+            If None and tokenizer_type is "tiktoken", will attempt to infer from model name.
+        is_reasoning_model (bool):
+            Whether this is a reasoning model (like OpenAI's o1 series) that doesn't support
+            temperature, top_p, or stop sequences. Default is False.
+        supports_temperature (bool):
+            Whether the model supports temperature parameter. Default is True.
+        supports_stop_sequences (bool):
+            Whether the model supports stop sequences. Default is True.
+        max_tokens_param_name (str):
+            The parameter name used for max tokens in API calls.
+            OpenAI uses "max_completion_tokens", some providers use "max_tokens". Default is "max_completion_tokens".
+        provider_name (str):
+            Name of the provider for logging purposes (e.g., "openai", "deepseek", "together").
+            Default is "openai".
         api_max_retry (int):
             Maximum number of retries for API requests. Default is 8.
         api_retry_sleep (float):
@@ -94,46 +118,81 @@ class OpenAIModelConfig(ModelConfig):
 
     Example:
         ```python
-        config = OpenAIModelConfig(
+        # OpenAI
+        config = OpenAICompatibleModelConfig(
             model_name="gpt-4",
             api_key="sk-...",
-            concurrent_requests=5,
-            generation_parameters=GenerationParameters(
-                temperature=0.7,
-                max_new_tokens=100
-            )
+            concurrent_requests=5
+        )
+        
+        # DeepSeek
+        config = OpenAICompatibleModelConfig(
+            model_name="deepseek-chat",
+            api_key="sk-...",
+            base_url="https://api.deepseek.com/v1",
+            max_model_length=64000,
+            provider="deepseek"
+        )
+        
+        # vLLM deployment
+        config = OpenAICompatibleModelConfig(
+            model_name="meta-llama/Llama-3-70b",
+            base_url="http://localhost:8000/v1",
+            max_model_length=8192,
+            tokenizer_type="none",
+            provider="vllm"
         )
         ```
     """
 
     model_name: str
-    api_key: str | None = None
+    provider: str | None = None
     base_url: str | None = None
+    api_key: str | None = None
     organization: str | None = None
     concurrent_requests: int = 10
     max_model_length: int | None = None
-
+    tokenizer_type: str = "tiktoken"
+    tokenizer_encoding: str | None = None
+    is_reasoning_model: bool = False
+    supports_temperature: bool = True
+    supports_stop_sequences: bool = True
+    max_tokens_param_name: str = "max_completion_tokens"
+    provider_name: str = "openai"
     api_max_retry: int = 8
     api_retry_sleep: float = 1.0
     api_retry_multiplier: float = 2.0
     timeout: float | None = None
 
 
-@requires("openai", "tiktoken")
-class OpenAIClient(LightevalModel):
-    """OpenAI API client for lighteval.
+@requires("openai")
+class OpenAICompatibleClient(LightevalModel):
+    """OpenAI-compatible API client for lighteval.
 
-    This client uses the official OpenAI Python SDK to interface with OpenAI's API.
-    It supports text generation, handles retries, and integrates with lighteval's caching system.
+    This client uses the official OpenAI Python SDK to interface with any API that follows
+    the OpenAI API specification. It supports text generation, handles retries, and integrates
+    with lighteval's caching system.
+    
+    Supported providers include:
+    - OpenAI (api.openai.com)
+    - Azure OpenAI
+    - Together AI
+    - Anyscale
+    - DeepSeek
+    - vLLM deployments with OpenAI compatibility
+    - LM Studio
+    - Ollama (with OpenAI compatibility mode)
+    - Any custom deployment using the OpenAI API format
     """
 
     _DEFAULT_MAX_LENGTH: int = 4096
 
-    def __init__(self, config: OpenAIModelConfig) -> None:
-        """Initialize OpenAI client.
+    def __init__(self, config: OpenAICompatibleModelConfig) -> None:
+        """Initialize OpenAI-compatible API client.
 
         IMPORTANT: Your API key should be set in the OPENAI_API_KEY environment variable
-        or passed explicitly in the config.
+        or passed explicitly in the config. For non-OpenAI providers, set the appropriate
+        environment variable or pass the key explicitly.
         """
         self.config = config
         self.model = config.model_name
@@ -159,12 +218,29 @@ class OpenAIClient(LightevalModel):
 
         self.client = OpenAI(**client_kwargs)
 
-        # Initialize tokenizer using tiktoken
-        try:
-            self._tokenizer = tiktoken.encoding_for_model(self.model)
-        except KeyError:
-            logger.warning(f"Model {self.model} not found in tiktoken, using cl100k_base encoding")
-            self._tokenizer = tiktoken.get_encoding("cl100k_base")
+        # Initialize tokenizer based on configuration
+        self._tokenizer = None
+        if config.tokenizer_type == "tiktoken":
+            if not is_package_available("tiktoken"):
+                logger.warning("tiktoken not available, tokenization will be limited")
+            else:
+                try:
+                    if config.tokenizer_encoding:
+                        self._tokenizer = tiktoken.get_encoding(config.tokenizer_encoding)
+                    else:
+                        self._tokenizer = tiktoken.encoding_for_model(self.model)
+                except KeyError:
+                    logger.warning(f"Model {self.model} not found in tiktoken, using cl100k_base encoding")
+                    self._tokenizer = tiktoken.get_encoding("cl100k_base")
+        elif config.tokenizer_type == "cl100k_base":
+            if is_package_available("tiktoken"):
+                self._tokenizer = tiktoken.get_encoding("cl100k_base")
+            else:
+                logger.warning("tiktoken not available for cl100k_base encoding")
+        elif config.tokenizer_type == "none":
+            logger.info("Tokenizer disabled by configuration")
+        else:
+            logger.warning(f"Unknown tokenizer_type: {config.tokenizer_type}")
 
         self.pairwise_tokenization = False
         self.prompt_manager = PromptManager(
@@ -175,8 +251,8 @@ class OpenAIClient(LightevalModel):
         self._cache = SampleCache(config)
 
     def _is_reasoning_model(self) -> bool:
-        """Check if the model is a reasoning model (o1 series)."""
-        return "o1" in self.model.lower()
+        """Check if the model is a reasoning model."""
+        return self.config.is_reasoning_model
 
     def _prepare_stop_sequence(self, stop_sequence):
         """Prepare and validate stop sequence."""
@@ -233,26 +309,24 @@ class OpenAIClient(LightevalModel):
             kwargs["response_format"] = response_format
         if return_logits:
             kwargs["logprobs"] = True
-        if stop_sequence:
+        if stop_sequence and self.config.supports_stop_sequences:
             kwargs["stop"] = stop_sequence
 
-        # O1 models don't support temperature, top_p, or stop sequences
-        if self._is_reasoning_model():
-            logger.warning("O1 models do not support temperature, top_p, or stop sequences. Disabling.")
-            kwargs.pop("stop", None)
-        else:
-            # Add generation parameters
+        # Add generation parameters based on support flags
+        if self.config.supports_temperature:
             gen_params = self.generation_parameters.to_litellm_dict()
-            # Map parameters to OpenAI's naming
+            # Remove parameters that will be set separately
             if "max_completion_tokens" in gen_params:
                 gen_params.pop("max_completion_tokens")  # We'll set it separately
+            if "max_tokens" in gen_params:
+                gen_params.pop("max_tokens")  # We'll set it separately
             if "stop" in gen_params:
                 gen_params.pop("stop")  # Already handled above
             kwargs.update(gen_params)
 
-        # Set max tokens - use max_completion_tokens for OpenAI
+        # Set max tokens using the configured parameter name
         if max_new_tokens:
-            kwargs["max_completion_tokens"] = max_new_tokens
+            kwargs[self.config.max_tokens_param_name] = max_new_tokens
 
         errors = []
         for attempt in range(self.API_MAX_RETRY):
@@ -272,9 +346,13 @@ class OpenAIClient(LightevalModel):
             except BadRequestError as e:
                 errors.append(e)
                 error_message = str(e)
-                # Check for content filtering
-                if "content management policy" in error_message.lower() or "content_filter" in error_message.lower():
-                    logger.warning(f"Response was filtered due to content policy. Returning empty response.")
+                # Check for content filtering (provider-agnostic)
+                content_filter_keywords = ["content", "filter", "policy", "safety", "blocked", "moderation"]
+                if any(keyword in error_message.lower() for keyword in content_filter_keywords):
+                    logger.warning(
+                        f"Response may have been filtered by provider ({self.config.provider_name}). "
+                        f"Returning empty response. Error: {error_message}"
+                    )
                     # Return a mock empty response
                     return type('obj', (object,), {
                         'choices': [type('obj', (object,), {
@@ -404,39 +482,49 @@ class OpenAIClient(LightevalModel):
 
     @property
     def tokenizer(self):
-        """Return the tiktoken tokenizer."""
-        # Create a mock tokenizer object that has the encode method
-        class TiktokenWrapper:
+        """Return a tokenizer wrapper."""
+        # Create a wrapper object that has the encode method
+        class TokenizerWrapper:
             def __init__(self, encoding):
                 self._encoding = encoding
-                self.eos_token_id = None  # OpenAI handles this internally
+                self.eos_token_id = None  # API handles this internally
 
             def encode(self, text, add_special_tokens=False):
-                # tiktoken doesn't have add_special_tokens, it's handled by the API
+                if self._encoding is None:
+                    # Fallback: approximate token count
+                    return text.split()
                 return self._encoding.encode(text)
 
             def decode(self, tokens):
+                if self._encoding is None:
+                    return " ".join(str(t) for t in tokens)
                 return self._encoding.decode(tokens)
 
             def batch_decode(self, token_lists, skip_special_tokens=True):
+                if self._encoding is None:
+                    return [" ".join(str(t) for t in tokens) for tokens in token_lists]
                 return [self._encoding.decode(tokens) for tokens in token_lists]
 
-        return TiktokenWrapper(self._tokenizer)
+        return TokenizerWrapper(self._tokenizer)
 
     @property
     def add_special_tokens(self) -> bool:
-        """OpenAI API handles special tokens internally."""
+        """OpenAI-compatible APIs handle special tokens internally."""
         return False
 
     @property
     def max_length(self) -> int:
-        """Return the maximum sequence length of the model."""
+        """Return the maximum sequence length of the model.
+        
+        For provider-agnostic support, this should be set explicitly in the config.
+        Falls back to OpenAI model dictionary for known models, then default value.
+        """
         if self._max_length is not None:
             return self._max_length
 
-        # Model context lengths from OpenAI documentation
-        # https://platform.openai.com/docs/models
-        model_max_lengths = {
+        # Try OpenAI model dictionary for backward compatibility
+        # This helps with OpenAI models even if max_model_length isn't set
+        openai_model_max_lengths = {
             "gpt-4": 8192,
             "gpt-4-0613": 8192,
             "gpt-4-32k": 32768,
@@ -462,27 +550,32 @@ class OpenAIClient(LightevalModel):
             "o1": 200000,
         }
 
-        max_length = model_max_lengths.get(self.model, self._DEFAULT_MAX_LENGTH)
+        # Check if this is a known OpenAI model
+        if self.model in openai_model_max_lengths:
+            self._max_length = openai_model_max_lengths[self.model]
+            return self._max_length
 
-        if self.model not in model_max_lengths:
-            logger.warning(
-                f"Model {self.model} not found in known models, using default max length {self._DEFAULT_MAX_LENGTH}"
-            )
+        # Fall back to default and warn
+        logger.warning(
+            f"Max length not specified for model {self.model} from provider {self.config.provider_name}. "
+            f"Using default {self._DEFAULT_MAX_LENGTH}. "
+            f"It's recommended to set max_model_length explicitly in the config for accurate context windows."
+        )
 
         # Cache the result
-        self._max_length = max_length
-        return max_length
+        self._max_length = self._DEFAULT_MAX_LENGTH
+        return self._max_length
 
     @cached(SamplingMethod.LOGPROBS)
     def loglikelihood(self, docs: list[Doc]) -> list[ModelResponse]:
         """Tokenize the context and continuation and compute the log likelihood of those
         tokenized sequences.
 
-        Note: OpenAI's API does not directly support computing log likelihoods for arbitrary
+        Note: OpenAI-compatible APIs typically do not support computing log likelihoods for arbitrary
         continuations, so this method is not implemented.
         """
         raise NotImplementedError(
-            "OpenAI API does not support computing log likelihoods for arbitrary continuations. "
+            f"Provider {self.config.provider_name} does not support computing log likelihoods for arbitrary continuations. "
             "Use generative tasks instead."
         )
 
@@ -490,9 +583,15 @@ class OpenAIClient(LightevalModel):
     def loglikelihood_rolling(self, docs: list[Doc]) -> list[ModelResponse]:
         """This function is used to compute the log likelihood of the context for perplexity metrics.
 
-        Note: OpenAI's API does not support this functionality directly.
+        Note: OpenAI-compatible APIs typically do not support this functionality directly.
         """
         raise NotImplementedError(
-            "OpenAI API does not support computing rolling log likelihoods. "
+            f"Provider {self.config.provider_name} does not support computing rolling log likelihoods. "
             "Use generative tasks instead."
         )
+
+
+# Backward compatibility aliases
+# These allow existing code using the old class names to continue working
+OpenAIModelConfig = OpenAICompatibleModelConfig
+OpenAIClient = OpenAICompatibleClient
