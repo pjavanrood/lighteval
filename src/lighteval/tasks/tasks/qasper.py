@@ -41,6 +41,7 @@ qasper = LightevalTaskConfig(
     name="qasper",
     prompt_function=qasper_prompt,
     hf_repo="allenai/qasper",
+    hf_revision="refs/convert/parquet",
     hf_subset="qasper",
     hf_avail_splits=["train", "validation"],
     evaluation_splits=["validation"],
