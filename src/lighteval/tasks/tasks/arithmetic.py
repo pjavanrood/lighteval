@@ -27,9 +27,6 @@ from lighteval.tasks.lighteval_task import LightevalTaskConfig
 from lighteval.tasks.requests import Doc
 
 
-# TODO: convert dataset to parquet
-
-
 def arithmetic_prompt(line, task_name: str = None):
     return Doc(task_name=task_name, query=line["context"], choices=[line["completion"]], gold_index=[0])
 
@@ -42,6 +39,7 @@ arithmetic_1dc = LightevalTaskConfig(
     name="arithmetic:1dc",
     prompt_function=arithmetic_prompt,
     hf_repo="EleutherAI/arithmetic",
+    hf_revision="refs/convert/parquet",
     hf_subset="arithmetic_1dc",
     hf_avail_splits=["validation"],
     evaluation_splits=["validation"],
@@ -60,6 +58,7 @@ arithmetic_2da = LightevalTaskConfig(
     name="arithmetic:2da",
     prompt_function=arithmetic_prompt,
     hf_repo="EleutherAI/arithmetic",
+    hf_revision="refs/convert/parquet",
     hf_subset="arithmetic_2da",
     hf_avail_splits=["validation"],
     evaluation_splits=["validation"],
@@ -78,6 +77,7 @@ arithmetic_2dm = LightevalTaskConfig(
     name="arithmetic:2dm",
     prompt_function=arithmetic_prompt,
     hf_repo="EleutherAI/arithmetic",
+    hf_revision="refs/convert/parquet",
     hf_subset="arithmetic_2dm",
     hf_avail_splits=["validation"],
     evaluation_splits=["validation"],
@@ -96,6 +96,7 @@ arithmetic_2ds = LightevalTaskConfig(
     name="arithmetic:2ds",
     prompt_function=arithmetic_prompt,
     hf_repo="EleutherAI/arithmetic",
+    hf_revision="refs/convert/parquet",
     hf_subset="arithmetic_2ds",
     hf_avail_splits=["validation"],
     evaluation_splits=["validation"],
@@ -114,6 +115,7 @@ arithmetic_3da = LightevalTaskConfig(
     name="arithmetic:3da",
     prompt_function=arithmetic_prompt,
     hf_repo="EleutherAI/arithmetic",
+    hf_revision="refs/convert/parquet",
     hf_subset="arithmetic_3da",
     hf_avail_splits=["validation"],
     evaluation_splits=["validation"],
@@ -132,6 +134,7 @@ arithmetic_3ds = LightevalTaskConfig(
     name="arithmetic:3ds",
     prompt_function=arithmetic_prompt,
     hf_repo="EleutherAI/arithmetic",
+    hf_revision="refs/convert/parquet",
     hf_subset="arithmetic_3ds",
     hf_avail_splits=["validation"],
     evaluation_splits=["validation"],
@@ -150,6 +153,7 @@ arithmetic_4da = LightevalTaskConfig(
     name="arithmetic:4da",
     prompt_function=arithmetic_prompt,
     hf_repo="EleutherAI/arithmetic",
+    hf_revision="refs/convert/parquet",
     hf_subset="arithmetic_4da",
     hf_avail_splits=["validation"],
     evaluation_splits=["validation"],
@@ -168,6 +172,7 @@ arithmetic_4ds = LightevalTaskConfig(
     name="arithmetic:4ds",
     prompt_function=arithmetic_prompt,
     hf_repo="EleutherAI/arithmetic",
+    hf_revision="refs/convert/parquet",
     hf_subset="arithmetic_4ds",
     hf_avail_splits=["validation"],
     evaluation_splits=["validation"],
@@ -186,6 +191,7 @@ arithmetic_5da = LightevalTaskConfig(
     name="arithmetic:5da",
     prompt_function=arithmetic_prompt,
     hf_repo="EleutherAI/arithmetic",
+    hf_revision="refs/convert/parquet",
     hf_subset="arithmetic_5da",
     hf_avail_splits=["validation"],
     evaluation_splits=["validation"],
@@ -204,6 +210,7 @@ arithmetic_5ds = LightevalTaskConfig(
     name="arithmetic:5ds",
     prompt_function=arithmetic_prompt,
     hf_repo="EleutherAI/arithmetic",
+    hf_revision="refs/convert/parquet",
     hf_subset="arithmetic_5ds",
     hf_avail_splits=["validation"],
     evaluation_splits=["validation"],
