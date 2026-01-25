@@ -150,7 +150,8 @@ class TinyCorpusAggregator(SampleLevelComputation, CorpusLevelComputation):
         # Creating vector y and estimating theta
         y = np.zeros(N)
         for i, j in enumerate(seen_examples):
-            y[j] = items[i]
+            if i < len(items):
+                y[j] = items[i]
 
         # Getting estimates
         theta = fit_theta(y, seen_examples, A, B)
