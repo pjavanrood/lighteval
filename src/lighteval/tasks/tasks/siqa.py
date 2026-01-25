@@ -3,7 +3,7 @@ name:
 Siqa
 
 dataset:
-allenai/social_i_qa
+lighteval/siqa
 
 abstract:
 We introduce Social IQa: Social Interaction QA, a new question-answering
@@ -58,7 +58,7 @@ def siqa_prompt(line, task_name: str = None):
 siqa = LightevalTaskConfig(
     name="siqa",
     prompt_function=siqa_prompt,
-    hf_repo="allenai/social_i_qa",
+    hf_repo="lighteval/siqa",
     hf_subset="default",
     hf_avail_splits=["train", "validation"],
     evaluation_splits=["validation"],
