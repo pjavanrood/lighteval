@@ -100,8 +100,12 @@ def raft_twitter_complaints_prompt(line, task_name: str = None):
 raft_ade_corpus_v2 = LightevalTaskConfig(
     name="raft:ade_corpus_v2",
     prompt_function=raft_ade_corpus_v2_prompt,
-    hf_repo="ought/raft",
-    hf_subset="ade_corpus_v2",
+    hf_repo="parquet",
+    hf_data_files={
+        "train": "hf://datasets/ought/raft@refs%2Fconvert%2Fparquet/ade_corpus_v2/train/0000.parquet",
+        "test": "hf://datasets/ought/raft@refs%2Fconvert%2Fparquet/ade_corpus_v2/test/0000.parquet",
+    },
+    hf_subset="default",
     hf_avail_splits=["train", "test"],
     evaluation_splits=["test"],
     few_shots_split=None,
@@ -117,8 +121,12 @@ raft_ade_corpus_v2 = LightevalTaskConfig(
 raft_banking_77 = LightevalTaskConfig(
     name="raft:banking_77",
     prompt_function=raft_banking_77_prompt,
-    hf_repo="ought/raft",
-    hf_subset="banking_77",
+    hf_repo="parquet",
+    hf_data_files={
+        "train": "hf://datasets/ought/raft@refs%2Fconvert%2Fparquet/banking_77/train/0000.parquet",
+        "test": "hf://datasets/ought/raft@refs%2Fconvert%2Fparquet/banking_77/test/0000.parquet",
+    },
+    hf_subset="default",
     hf_avail_splits=["train", "test"],
     evaluation_splits=["test"],
     few_shots_split=None,
@@ -134,8 +142,12 @@ raft_banking_77 = LightevalTaskConfig(
 raft_neurips_impact_statement_risks = LightevalTaskConfig(
     name="raft:neurips_impact_statement_risks",
     prompt_function=raft_neurips_impact_statement_risks_prompt,
-    hf_repo="ought/raft",
-    hf_subset="neurips_impact_statement_risks",
+    hf_repo="parquet",
+    hf_data_files={
+        "train": "hf://datasets/ought/raft@refs%2Fconvert%2Fparquet/neurips_impact_statement_risks/train/0000.parquet",
+        "test": "hf://datasets/ought/raft@refs%2Fconvert%2Fparquet/neurips_impact_statement_risks/test/0000.parquet",
+    },
+    hf_subset="default",
     hf_avail_splits=["train", "test"],
     evaluation_splits=["test"],
     few_shots_split=None,
@@ -151,8 +163,12 @@ raft_neurips_impact_statement_risks = LightevalTaskConfig(
 raft_one_stop_english = LightevalTaskConfig(
     name="raft:one_stop_english",
     prompt_function=raft_one_stop_english_prompt,
-    hf_repo="ought/raft",
-    hf_subset="one_stop_english",
+    hf_repo="parquet",
+    hf_data_files={
+        "train": "hf://datasets/ought/raft@refs%2Fconvert%2Fparquet/one_stop_english/train/0000.parquet",
+        "test": "hf://datasets/ought/raft@refs%2Fconvert%2Fparquet/one_stop_english/test/0000.parquet",
+    },
+    hf_subset="default",
     hf_avail_splits=["train", "test"],
     evaluation_splits=["test"],
     few_shots_split=None,
@@ -168,8 +184,12 @@ raft_one_stop_english = LightevalTaskConfig(
 raft_overruling = LightevalTaskConfig(
     name="raft:overruling",
     prompt_function=raft_overruling_prompt,
-    hf_repo="ought/raft",
-    hf_subset="overruling",
+    hf_repo="parquet",
+    hf_data_files={
+        "train": "hf://datasets/ought/raft@refs%2Fconvert%2Fparquet/overruling/train/0000.parquet",
+        "test": "hf://datasets/ought/raft@refs%2Fconvert%2Fparquet/overruling/test/0000.parquet",
+    },
+    hf_subset="default",
     hf_avail_splits=["train", "test"],
     evaluation_splits=["test"],
     few_shots_split=None,
@@ -185,8 +205,12 @@ raft_overruling = LightevalTaskConfig(
 raft_semiconductor_org_types = LightevalTaskConfig(
     name="raft:semiconductor_org_types",
     prompt_function=raft_semiconductor_org_types_prompt,
-    hf_repo="ought/raft",
-    hf_subset="semiconductor_org_types",
+    hf_repo="parquet",
+    hf_data_files={
+        "train": "hf://datasets/ought/raft@refs%2Fconvert%2Fparquet/semiconductor_org_types/train/0000.parquet",
+        "test": "hf://datasets/ought/raft@refs%2Fconvert%2Fparquet/semiconductor_org_types/test/0000.parquet",
+    },
+    hf_subset="default",
     hf_avail_splits=["train", "test"],
     evaluation_splits=["test"],
     few_shots_split=None,
@@ -202,8 +226,12 @@ raft_semiconductor_org_types = LightevalTaskConfig(
 raft_systematic_review_inclusion = LightevalTaskConfig(
     name="raft:systematic_review_inclusion",
     prompt_function=raft_systematic_review_inclusion_prompt,
-    hf_repo="ought/raft",
-    hf_subset="systematic_review_inclusion",
+    hf_repo="parquet",
+    hf_data_files={
+        "train": "hf://datasets/ought/raft@refs%2Fconvert%2Fparquet/systematic_review_inclusion/train/0000.parquet",
+        "test": "hf://datasets/ought/raft@refs%2Fconvert%2Fparquet/systematic_review_inclusion/test/0000.parquet",
+    },
+    hf_subset="default",
     hf_avail_splits=["train", "test"],
     evaluation_splits=["test"],
     few_shots_split=None,
@@ -219,8 +247,12 @@ raft_systematic_review_inclusion = LightevalTaskConfig(
 raft_tai_safety_research = LightevalTaskConfig(
     name="raft:tai_safety_research",
     prompt_function=raft_tai_safety_research_prompt,
-    hf_repo="ought/raft",
-    hf_subset="tai_safety_research",
+    hf_repo="parquet",
+    hf_data_files={
+        "train": "hf://datasets/ought/raft@refs%2Fconvert%2Fparquet/tai_safety_research/train/0000.parquet",
+        "test": "hf://datasets/ought/raft@refs%2Fconvert%2Fparquet/tai_safety_research/test/0000.parquet",
+    },
+    hf_subset="default",
     hf_avail_splits=["train", "test"],
     evaluation_splits=["test"],
     few_shots_split=None,
@@ -236,8 +268,12 @@ raft_tai_safety_research = LightevalTaskConfig(
 raft_terms_of_service = LightevalTaskConfig(
     name="raft:terms_of_service",
     prompt_function=raft_terms_of_service_prompt,
-    hf_repo="ought/raft",
-    hf_subset="terms_of_service",
+    hf_repo="parquet",
+    hf_data_files={
+        "train": "hf://datasets/ought/raft@refs%2Fconvert%2Fparquet/terms_of_service/train/0000.parquet",
+        "test": "hf://datasets/ought/raft@refs%2Fconvert%2Fparquet/terms_of_service/test/0000.parquet",
+    },
+    hf_subset="default",
     hf_avail_splits=["train", "test"],
     evaluation_splits=["test"],
     few_shots_split=None,
@@ -253,8 +289,12 @@ raft_terms_of_service = LightevalTaskConfig(
 raft_tweet_eval_hate = LightevalTaskConfig(
     name="raft:tweet_eval_hate",
     prompt_function=raft_tweet_eval_hate_prompt,
-    hf_repo="ought/raft",
-    hf_subset="tweet_eval_hate",
+    hf_repo="parquet",
+    hf_data_files={
+        "train": "hf://datasets/ought/raft@refs%2Fconvert%2Fparquet/tweet_eval_hate/train/0000.parquet",
+        "test": "hf://datasets/ought/raft@refs%2Fconvert%2Fparquet/tweet_eval_hate/test/0000.parquet",
+    },
+    hf_subset="default",
     hf_avail_splits=["train", "test"],
     evaluation_splits=["test"],
     few_shots_split=None,
@@ -270,8 +310,12 @@ raft_tweet_eval_hate = LightevalTaskConfig(
 raft_twitter_complaints = LightevalTaskConfig(
     name="raft:twitter_complaints",
     prompt_function=raft_twitter_complaints_prompt,
-    hf_repo="ought/raft",
-    hf_subset="twitter_complaints",
+    hf_repo="parquet",
+    hf_data_files={
+        "train": "hf://datasets/ought/raft@refs%2Fconvert%2Fparquet/twitter_complaints/train/0000.parquet",
+        "test": "hf://datasets/ought/raft@refs%2Fconvert%2Fparquet/twitter_complaints/test/0000.parquet",
+    },
+    hf_subset="default",
     hf_avail_splits=["train", "test"],
     evaluation_splits=["test"],
     few_shots_split=None,
