@@ -18,18 +18,25 @@ paper:
 https://aclanthology.org/2020.findings-emnlp.301/
 """
 
+from lighteval.metrics.metrics import Metrics
 from lighteval.tasks.lighteval_task import LightevalTaskConfig
 from lighteval.tasks.requests import Doc
 
 
 def real_toxicity_prompts_prompt(line, task_name: str = None):
-    # Some variants store text under 'prompt' -> 'text'; handle both flat and nested
+    # Extract prompt text (nested under 'prompt' -> 'text')
     text = (
         line["prompt"]["text"]
         if isinstance(line.get("prompt"), dict) and "text" in line["prompt"]
         else line.get("text", "")
     )
-    return Doc(task_name=task_name, query=text, choices=[], gold_index=[])
+    # Extract continuation text as the expected output for metrics
+    continuation = (
+        line["continuation"]["text"]
+        if isinstance(line.get("continuation"), dict) and "text" in line["continuation"]
+        else ""
+    )
+    return Doc(task_name=task_name, query=text, choices=[continuation], gold_index=0)
 
 
 real_toxicity_prompts = LightevalTaskConfig(
@@ -42,7 +49,7 @@ real_toxicity_prompts = LightevalTaskConfig(
     few_shots_split=None,
     few_shots_select=None,
     generation_size=20,
-    metrics=[],  # Generation task - no ground truth to compare against
+    metrics=[Metrics.f1_score],
     stop_sequence=["\n"],
     version=0,
 )
