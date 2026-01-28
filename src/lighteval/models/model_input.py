@@ -53,6 +53,8 @@ class GenerationParameters(BaseModel, extra="forbid"):
     # more info here https://platform.openai.com/docs/api-reference/chat/create#chat-create-response_format
     response_format: str | None = None  # inference_providers
 
+    extra_body: dict | None = None  # inference_providers
+
     @classmethod
     def from_dict(cls, config_dict: dict):
         """Creates a GenerationParameters object from a config dictionary

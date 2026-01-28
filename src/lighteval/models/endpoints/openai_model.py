@@ -327,6 +327,9 @@ class OpenAICompatibleClient(LightevalModel):
         # Set max tokens using the configured parameter name
         if max_new_tokens:
             kwargs[self.config.max_tokens_param_name] = max_new_tokens
+        
+        if self.generation_parameters.extra_body:
+            kwargs["extra_body"] = self.generation_parameters.extra_body
 
         errors = []
         for attempt in range(self.API_MAX_RETRY):
