@@ -58,7 +58,7 @@ def mmlu_pro_prompt_function(line, task_name: str = None):
         query=query,
         choices=ascii_uppercase[: len(choices)],
         gold_index=line["answer_index"],
-        instruction=query,
+        instruction="Answer the following multiple choice question. The last line of your response should be of the following format: 'Answer: $LETTER' (without quotes) where LETTER is one of ABCD. Think step by step before answering.\n\n",
     )
 
 
