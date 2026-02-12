@@ -123,10 +123,12 @@ class Pipeline:
         model_config: ModelConfig | None = None,
         model=None,
         metric_options=None,
+        progress_callback=None,
     ):
         if not (model or model_config):
             raise ValueError("Must provide either a model or model config when creating a pipeline.")
 
+        self.progress_callback = progress_callback
         self.pipeline_parameters = pipeline_parameters
         if self.pipeline_parameters.max_samples:
             logger.warning(
@@ -318,7 +320,7 @@ class Pipeline:
             logger.info(f"Running {sampling_method} requests")
             match sampling_method:
                 case SamplingMethod.GENERATIVE:
-                    model_outputs = self.model.greedy_until(docs)
+                    model_outputs = self.model.greedy_until(docs, progress_callback=self.progress_callback)
                     outputs[sampling_method] = model_outputs
                 case SamplingMethod.LOGPROBS:
                     model_outputs = self.model.loglikelihood(docs)

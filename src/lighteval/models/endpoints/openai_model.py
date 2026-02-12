@@ -390,6 +390,7 @@ class OpenAICompatibleClient(LightevalModel):
         num_samples: int | list[int],
         stop_sequence: list[str] | None = None,
         grammar=None,
+        progress_callback=None,
     ):
         """Execute multiple API calls in parallel."""
         results = []
@@ -422,6 +423,8 @@ class OpenAICompatibleClient(LightevalModel):
                 total=len(prompts),
             ):
                 results.append(entry)
+                if progress_callback:
+                    progress_callback((len(results), len(prompts)))
 
         if None in results:
             raise ValueError("Some entries are not annotated due to errors in API calls, please inspect and retry.")
@@ -432,6 +435,7 @@ class OpenAICompatibleClient(LightevalModel):
     def greedy_until(
         self,
         docs: list[Doc],
+        progress_callback=None,
     ) -> list[ModelResponse]:
         """Generates responses using a greedy decoding strategy until certain ending conditions are met.
 
@@ -464,7 +468,7 @@ class OpenAICompatibleClient(LightevalModel):
                 )
 
             responses = self.__call_api_parallel(
-                contexts, return_logits, max_new_tokens, num_samples, stop_sequence, grammar
+                contexts, return_logits, max_new_tokens, num_samples, stop_sequence, grammar, progress_callback
             )
 
             for response, context in zip(responses, contexts):
