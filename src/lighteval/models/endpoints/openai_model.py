@@ -173,6 +173,7 @@ class OpenAICompatibleModelConfig(ModelConfig):
     api_retry_multiplier: float = 2.0
     timeout: float | None = None
     max_empty_responses_before_abort: int = 5
+    max_api_call_error_rate: float = 0.1
 
 
 @requires("openai")
@@ -374,7 +375,7 @@ class OpenAICompatibleClient(LightevalModel):
                 response = self.client.chat.completions.create(**kwargs)
                 content = response.choices[0].message.content
 
-                if not content:
+                if not content.strip():
                     with self._empty_count_lock:
                         self._empty_response_count += 1
                         if self._empty_response_count >= self.config.max_empty_responses_before_abort:
@@ -488,10 +489,10 @@ class OpenAICompatibleClient(LightevalModel):
                     break
 
         error_count = sum(1 for r in results if isinstance(r, APICallError))
-        if error_count >= self.config.max_empty_responses_before_abort:
+        if error_count / len(results) >= self.config.max_api_call_error_rate:
             error_details = [f"[{r.error_type}] {r.message}" for r in results if isinstance(r, APICallError)]
             raise RuntimeError(
-                f"{error_count}/{len(results)} API calls failed (threshold: {self.config.max_empty_responses_before_abort}):\n"
+                f"{error_count}/{len(results)} API calls failed (threshold: {self.config.max_api_call_error_rate}):\n"
                 + "\n".join(error_details[:10])
             )
 
