@@ -20,6 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import json
 import logging
 import threading
 import time
@@ -372,6 +373,7 @@ class OpenAICompatibleClient(LightevalModel):
                 time.sleep(resume_wait)
 
             try:
+                logger.debug(f"Calling API with kwargs: {json.dumps(kwargs, indent=2)}")
                 response = self.client.chat.completions.create(**kwargs)
                 content = response.choices[0].message.content
 
