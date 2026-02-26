@@ -21,8 +21,10 @@
 # SOFTWARE.
 
 import logging
+import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
+from dataclasses import dataclass
 from unittest.mock import Mock
 
 from tqdm import tqdm
@@ -40,16 +42,23 @@ logger = logging.getLogger(__name__)
 
 # Check for OpenAI and tiktoken availability
 if is_package_available("openai"):
-    from openai import OpenAI, BadRequestError, APIError
+    from openai import OpenAI, BadRequestError, APIError, RateLimitError
 else:
     OpenAI = Mock()
     BadRequestError = Mock()
     APIError = Mock()
+    RateLimitError = Mock()
 
 if is_package_available("tiktoken"):
     import tiktoken
 else:
     tiktoken = Mock()
+
+
+@dataclass
+class APICallError:
+    error_type: str
+    message: str
 
 
 class OpenAICompatibleModelConfig(ModelConfig):
@@ -163,6 +172,7 @@ class OpenAICompatibleModelConfig(ModelConfig):
     api_retry_sleep: float = 1.0
     api_retry_multiplier: float = 2.0
     timeout: float | None = None
+    max_empty_responses_before_abort: int = 5
 
 
 @requires("openai")
@@ -204,6 +214,12 @@ class OpenAICompatibleClient(LightevalModel):
         self.API_RETRY_SLEEP = config.api_retry_sleep
         self.API_RETRY_MULTIPLIER = config.api_retry_multiplier
         self.timeout = config.timeout
+
+        self._abort_event = threading.Event()
+        self._empty_response_count = 0
+        self._empty_count_lock = threading.Lock()
+        self._rate_limit_lock = threading.Lock()
+        self._rate_limit_resume_time = 0.0
 
         # Initialize OpenAI client
         client_kwargs = {}
@@ -291,8 +307,19 @@ class OpenAICompatibleClient(LightevalModel):
 
         return None
 
+    @staticmethod
+    def _make_empty_response():
+        return type('obj', (object,), {
+            'choices': [type('obj', (object,), {
+                'message': type('obj', (object,), {'content': '', 'reasoning_content': None})()
+            })()]
+        })()
+
     def __call_api(self, prompt, return_logits, max_new_tokens, num_samples, stop_sequence, grammar):  # noqa: C901
         """Make API call with retries."""
+        if self._abort_event.is_set():
+            return APICallError("aborted", "Evaluation aborted due to too many failures")
+
         stop_sequence = self._prepare_stop_sequence(stop_sequence)
         max_new_tokens = self._prepare_max_new_tokens(max_new_tokens)
         response_format = self._prepare_response_format(grammar)
@@ -333,12 +360,24 @@ class OpenAICompatibleClient(LightevalModel):
 
         errors = []
         for attempt in range(self.API_MAX_RETRY):
+            resume_wait = self._rate_limit_resume_time - time.time()
+            if resume_wait > 0:
+                time.sleep(resume_wait)
+
             try:
                 response = self.client.chat.completions.create(**kwargs)
                 content = response.choices[0].message.content
 
-                # If response is empty, retry
-                if not content and attempt < self.API_MAX_RETRY - 1:
+                if not content:
+                    with self._empty_count_lock:
+                        self._empty_response_count += 1
+                        if self._empty_response_count >= self.config.max_empty_responses_before_abort:
+                            logger.error(
+                                f"Aborting: {self._empty_response_count} empty responses received, model may be unavailable."
+                            )
+                            self._abort_event.set()
+                    if self._abort_event.is_set() or attempt == self.API_MAX_RETRY - 1:
+                        return APICallError("empty_response", f"{self._empty_response_count} empty responses received, model may be unavailable")
                     logger.info("Response is empty, retrying")
                     wait_time = min(64, self.API_RETRY_SLEEP * (self.API_RETRY_MULTIPLIER**attempt))
                     time.sleep(wait_time)
@@ -354,17 +393,22 @@ class OpenAICompatibleClient(LightevalModel):
                 if any(keyword in error_message.lower() for keyword in content_filter_keywords):
                     logger.warning(
                         f"Response may have been filtered by provider ({self.config.provider_name}). "
-                        f"Returning empty response. Error: {error_message}"
+                        f"Error: {error_message}"
                     )
-                    # Return a mock empty response
-                    return type('obj', (object,), {
-                        'choices': [type('obj', (object,), {
-                            'message': type('obj', (object,), {'content': '', 'reasoning_content': None})()
-                        })()]
-                    })()
+                    return APICallError("content_filter", error_message)
                 # For other bad requests, don't retry
                 logger.error(f"BadRequestError: {e}")
                 break
+
+            except RateLimitError as e:
+                errors.append(e)
+                wait_time = min(64, self.API_RETRY_SLEEP * (self.API_RETRY_MULTIPLIER**attempt))
+                with self._rate_limit_lock:
+                    self._rate_limit_resume_time = max(
+                        self._rate_limit_resume_time, time.time() + wait_time
+                    )
+                logger.warning(f"Rate limit hit, coordinating backoff of {wait_time}s")
+                time.sleep(wait_time)
 
             except Exception as e:
                 errors.append(e)
@@ -374,13 +418,15 @@ class OpenAICompatibleClient(LightevalModel):
                 )
                 time.sleep(wait_time)
 
-        logger.error(f"API call failed after {self.API_MAX_RETRY} attempts, returning empty response. Errors: {errors}")
-        # Return a mock empty response
-        return type('obj', (object,), {
-            'choices': [type('obj', (object,), {
-                'message': type('obj', (object,), {'content': '', 'reasoning_content': None})()
-            })()]
-        })()
+        logger.error(f"API call failed after {self.API_MAX_RETRY} attempts. Errors: {errors}")
+        with self._empty_count_lock:
+            self._empty_response_count += 1
+            if self._empty_response_count >= self.config.max_empty_responses_before_abort:
+                logger.error(
+                    f"Aborting: {self._empty_response_count} failures received, model may be unavailable."
+                )
+                self._abort_event.set()
+        return APICallError("api_error", str(errors[-1]) if errors else "Unknown error after retries exhausted")
 
     def __call_api_parallel(
         self,
@@ -393,6 +439,10 @@ class OpenAICompatibleClient(LightevalModel):
         progress_callback=None,
     ):
         """Execute multiple API calls in parallel."""
+        self._abort_event.clear()
+        self._empty_response_count = 0
+        self._rate_limit_resume_time = 0.0
+
         results = []
 
         # Convert single values to lists
@@ -425,9 +475,18 @@ class OpenAICompatibleClient(LightevalModel):
                 results.append(entry)
                 if progress_callback:
                     progress_callback((len(results), len(prompts)))
+                if self._abort_event.is_set():
+                    remaining = len(prompts) - len(results)
+                    results.extend([APICallError("aborted", "Evaluation aborted due to too many failures")] * remaining)
+                    break
 
-        if None in results:
-            raise ValueError("Some entries are not annotated due to errors in API calls, please inspect and retry.")
+        error_count = sum(1 for r in results if isinstance(r, APICallError))
+        if error_count >= self.config.max_empty_responses_before_abort:
+            error_details = [f"[{r.error_type}] {r.message}" for r in results if isinstance(r, APICallError)]
+            raise RuntimeError(
+                f"{error_count}/{len(results)} API calls failed (threshold: {self.config.max_empty_responses_before_abort}):\n"
+                + "\n".join(error_details[:10])
+            )
 
         return results
 
@@ -472,17 +531,22 @@ class OpenAICompatibleClient(LightevalModel):
             )
 
             for response, context in zip(responses, contexts):
-                result: list[str] = [choice.message.content for choice in response.choices]
-                reasonings: list[str | None] = [
-                    getattr(choice.message, "reasoning_content", None) for choice in response.choices
-                ]
-
-                cur_response = ModelResponse(
-                    # In empty responses, the model should return an empty string instead of None
-                    text=result if result[0] else [""],
-                    reasonings=reasonings,
-                    input=context,
-                )
+                if isinstance(response, APICallError):
+                    cur_response = ModelResponse(
+                        text=[""],
+                        input=context,
+                        error=f"{response.error_type}: {response.message}",
+                    )
+                else:
+                    result: list[str] = [choice.message.content for choice in response.choices]
+                    reasonings: list[str | None] = [
+                        getattr(choice.message, "reasoning_content", None) for choice in response.choices
+                    ]
+                    cur_response = ModelResponse(
+                        text=result if result[0] else [""],
+                        reasonings=reasonings,
+                        input=context,
+                    )
                 results.append(cur_response)
 
         return dataset.get_original_order(results)

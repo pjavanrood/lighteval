@@ -137,6 +137,7 @@ class ModelResponse:
     # Other metadata
     truncated_tokens_count: int = 0  # How many tokens truncated
     padded_tokens_count: int = 0  # How many tokens of padding
+    error: str | None = None
 
     @property
     def final_text(self) -> list[str]:
