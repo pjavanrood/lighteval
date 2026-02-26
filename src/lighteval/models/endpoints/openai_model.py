@@ -210,9 +210,9 @@ class OpenAICompatibleClient(LightevalModel):
         self.concurrent_requests = config.concurrent_requests
         self._max_length = config.max_model_length
 
-        self.API_MAX_RETRY = config.api_max_retry
-        self.API_RETRY_SLEEP = config.api_retry_sleep
-        self.API_RETRY_MULTIPLIER = config.api_retry_multiplier
+        self.api_max_retry = config.api_max_retry
+        self.api_retry_sleep = config.api_retry_sleep
+        self.api_retry_multiplier = config.api_retry_multiplier
         self.timeout = config.timeout
 
         self._abort_event = threading.Event()
@@ -365,7 +365,7 @@ class OpenAICompatibleClient(LightevalModel):
             kwargs["extra_body"] = self.generation_parameters.extra_body
 
         errors = []
-        for attempt in range(self.API_MAX_RETRY):
+        for attempt in range(self.api_max_retry):
             resume_wait = self._rate_limit_resume_time - time.time()
             if resume_wait > 0:
                 time.sleep(resume_wait)
@@ -382,13 +382,13 @@ class OpenAICompatibleClient(LightevalModel):
                                 f"Aborting: {self._empty_response_count} empty responses received, model may be unavailable."
                             )
                             self._abort_event.set()
-                    if self._abort_event.is_set() or attempt == self.API_MAX_RETRY - 1:
+                    if self._abort_event.is_set() or attempt == self.api_max_retry - 1:
                         return APICallError(
                             "empty_response",
                             f"{self._empty_response_count} empty responses received, model may be unavailable",
                         )
                     logger.info("Response is empty, retrying")
-                    wait_time = min(64, self.API_RETRY_SLEEP * (self.API_RETRY_MULTIPLIER**attempt))
+                    wait_time = min(64, self.api_retry_sleep * (self.api_retry_multiplier**attempt))
                     time.sleep(wait_time)
                     continue
 
@@ -411,7 +411,7 @@ class OpenAICompatibleClient(LightevalModel):
 
             except RateLimitError as e:
                 errors.append(e)
-                wait_time = min(64, self.API_RETRY_SLEEP * (self.API_RETRY_MULTIPLIER**attempt))
+                wait_time = min(64, self.api_retry_sleep * (self.api_retry_multiplier**attempt))
                 with self._rate_limit_lock:
                     self._rate_limit_resume_time = max(self._rate_limit_resume_time, time.time() + wait_time)
                 logger.warning(f"Rate limit hit, coordinating backoff of {wait_time}s")
@@ -419,13 +419,13 @@ class OpenAICompatibleClient(LightevalModel):
 
             except Exception as e:
                 errors.append(e)
-                wait_time = min(64, self.API_RETRY_SLEEP * (self.API_RETRY_MULTIPLIER**attempt))
+                wait_time = min(64, self.api_retry_sleep * (self.api_retry_multiplier**attempt))
                 logger.warning(
-                    f"Error in API call: {e}, waiting {wait_time} seconds before retry {attempt + 1}/{self.API_MAX_RETRY}"
+                    f"Error in API call: {e}, waiting {wait_time} seconds before retry {attempt + 1}/{self.api_max_retry}"
                 )
                 time.sleep(wait_time)
 
-        logger.error(f"API call failed after {self.API_MAX_RETRY} attempts. Errors: {errors}")
+        logger.error(f"API call failed after {self.api_max_retry} attempts. Errors: {errors}")
         with self._empty_count_lock:
             self._empty_response_count += 1
             if self._empty_response_count >= self.config.max_empty_responses_before_abort:
