@@ -36,6 +36,7 @@ from lighteval.models.endpoints.inference_providers_model import (
     InferenceProvidersModelConfig,
 )
 from lighteval.models.endpoints.litellm_model import LiteLLMClient, LiteLLMModelConfig
+from lighteval.models.endpoints.openai_model import OpenAICompatibleClient, OpenAICompatibleModelConfig
 from lighteval.models.endpoints.tgi_model import ModelClient, TGIModelConfig
 from lighteval.models.sglang.sglang_model import SGLangModel, SGLangModelConfig
 from lighteval.models.transformers.adapter_model import AdapterModel, AdapterModelConfig
@@ -43,7 +44,6 @@ from lighteval.models.transformers.delta_model import DeltaModel, DeltaModelConf
 from lighteval.models.transformers.transformers_model import TransformersModel, TransformersModelConfig
 from lighteval.models.transformers.vlm_transformers_model import VLMTransformersModel, VLMTransformersModelConfig
 from lighteval.models.vllm.vllm_model import AsyncVLLMModel, VLLMModel, VLLMModelConfig
-from lighteval.models.endpoints.openai_model import OpenAICompatibleModelConfig, OpenAICompatibleClient
 
 
 logger = logging.getLogger(__name__)
@@ -90,7 +90,7 @@ def load_model(  # noqa: C901
 
     if isinstance(config, InferenceProvidersModelConfig):
         return load_inference_providers_model(config=config)
-    
+
     if isinstance(config, OpenAICompatibleModelConfig):
         return load_openai_compatible_model(config=config)
 
@@ -173,6 +173,7 @@ def load_inference_providers_model(config: InferenceProvidersModelConfig):
 
 def load_sglang_model(config: SGLangModelConfig):
     return SGLangModel(config=config)
+
 
 def load_openai_compatible_model(config: OpenAICompatibleModelConfig):
     return OpenAICompatibleClient(config=config)

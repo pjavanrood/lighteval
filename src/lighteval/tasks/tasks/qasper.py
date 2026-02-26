@@ -55,19 +55,25 @@ def qasper_prompt(line, task_name: str = None):
                         gold = "yes" if first_answer["yes_no"] else "no"
 
         if gold:
-            results.append(Doc(
-                task_name=task_name,
-                query=f"Title: {title}\n\nPassage: {passage}\n\nQuestion: {question}\nAnswer: ",
-                gold_index=0,
-                choices=[gold],
-            ))
+            results.append(
+                Doc(
+                    task_name=task_name,
+                    query=f"Title: {title}\n\nPassage: {passage}\n\nQuestion: {question}\nAnswer: ",
+                    gold_index=0,
+                    choices=[gold],
+                )
+            )
 
     # Return results if we found any questions with answers, otherwise return a single Doc
-    return results if results else Doc(
-        task_name=task_name,
-        query=f"Title: {title}\n\nPassage: {passage}\n\nQuestion: {questions[0] if questions else ''}\nAnswer: ",
-        gold_index=0,
-        choices=[""],
+    return (
+        results
+        if results
+        else Doc(
+            task_name=task_name,
+            query=f"Title: {title}\n\nPassage: {passage}\n\nQuestion: {questions[0] if questions else ''}\nAnswer: ",
+            gold_index=0,
+            choices=[""],
+        )
     )
 
 

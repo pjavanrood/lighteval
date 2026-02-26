@@ -335,7 +335,7 @@ class JudgeLM:
                         kwargs["api_key"] = self.api_key
                     if self.url is not None:
                         kwargs["base_url"] = self.url
-                    
+
                     print(kwargs)
                     response = litellm.completion(**kwargs)
                     text = response.choices[0].message.content

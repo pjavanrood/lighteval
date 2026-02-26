@@ -158,13 +158,21 @@ class TestOpenAIClient:
 
     @pytest.fixture
     def mock_openai_client(self):
-        """Fixture to mock OpenAI client."""
+        """Fixture to mock OpenAI client.
+
+        Yields:
+            MagicMock: Mock for the OpenAI class.
+        """
         with patch("lighteval.models.endpoints.openai_model.OpenAI") as mock:
             yield mock
 
     @pytest.fixture
     def mock_tiktoken(self):
-        """Fixture to mock tiktoken."""
+        """Fixture to mock tiktoken.
+
+        Yields:
+            MagicMock: Mock for the tiktoken module.
+        """
         with patch("lighteval.models.endpoints.openai_model.tiktoken") as mock:
             mock_encoding = Mock()
             mock_encoding.encode.return_value = [1, 2, 3, 4, 5]
@@ -204,7 +212,7 @@ class TestOpenAIClient:
             timeout=30.0,
         )
 
-        client = OpenAIClient(config)
+        OpenAIClient(config)
 
         # Verify OpenAI client was initialized with correct params
         call_kwargs = mock_openai_client.call_args[1]

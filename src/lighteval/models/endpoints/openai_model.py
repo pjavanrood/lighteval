@@ -42,7 +42,7 @@ logger = logging.getLogger(__name__)
 
 # Check for OpenAI and tiktoken availability
 if is_package_available("openai"):
-    from openai import OpenAI, BadRequestError, APIError, RateLimitError
+    from openai import APIError, BadRequestError, OpenAI, RateLimitError
 else:
     OpenAI = Mock()
     BadRequestError = Mock()
@@ -133,7 +133,7 @@ class OpenAICompatibleModelConfig(ModelConfig):
             api_key="sk-...",
             concurrent_requests=5
         )
-        
+
         # DeepSeek
         config = OpenAICompatibleModelConfig(
             model_name="deepseek-chat",
@@ -142,7 +142,7 @@ class OpenAICompatibleModelConfig(ModelConfig):
             max_model_length=64000,
             provider="deepseek"
         )
-        
+
         # vLLM deployment
         config = OpenAICompatibleModelConfig(
             model_name="meta-llama/Llama-3-70b",
@@ -182,7 +182,7 @@ class OpenAICompatibleClient(LightevalModel):
     This client uses the official OpenAI Python SDK to interface with any API that follows
     the OpenAI API specification. It supports text generation, handles retries, and integrates
     with lighteval's caching system.
-    
+
     Supported providers include:
     - OpenAI (api.openai.com)
     - Azure OpenAI
@@ -221,7 +221,6 @@ class OpenAICompatibleClient(LightevalModel):
         self._rate_limit_lock = threading.Lock()
         self._rate_limit_resume_time = 0.0
 
-        # Initialize OpenAI client
         client_kwargs = {}
         if config.api_key:
             client_kwargs["api_key"] = config.api_key
@@ -233,30 +232,7 @@ class OpenAICompatibleClient(LightevalModel):
             client_kwargs["timeout"] = config.timeout
 
         self.client = OpenAI(**client_kwargs)
-
-        # Initialize tokenizer based on configuration
-        self._tokenizer = None
-        if config.tokenizer_type == "tiktoken":
-            if not is_package_available("tiktoken"):
-                logger.warning("tiktoken not available, tokenization will be limited")
-            else:
-                try:
-                    if config.tokenizer_encoding:
-                        self._tokenizer = tiktoken.get_encoding(config.tokenizer_encoding)
-                    else:
-                        self._tokenizer = tiktoken.encoding_for_model(self.model)
-                except KeyError:
-                    logger.warning(f"Model {self.model} not found in tiktoken, using cl100k_base encoding")
-                    self._tokenizer = tiktoken.get_encoding("cl100k_base")
-        elif config.tokenizer_type == "cl100k_base":
-            if is_package_available("tiktoken"):
-                self._tokenizer = tiktoken.get_encoding("cl100k_base")
-            else:
-                logger.warning("tiktoken not available for cl100k_base encoding")
-        elif config.tokenizer_type == "none":
-            logger.info("Tokenizer disabled by configuration")
-        else:
-            logger.warning(f"Unknown tokenizer_type: {config.tokenizer_type}")
+        self._tokenizer = self._init_tokenizer(config)
 
         self.pairwise_tokenization = False
         self.prompt_manager = PromptManager(
@@ -265,6 +241,28 @@ class OpenAICompatibleClient(LightevalModel):
 
         # Initialize cache for tokenization and predictions
         self._cache = SampleCache(config)
+
+    def _init_tokenizer(self, config):
+        if config.tokenizer_type == "tiktoken":
+            if not is_package_available("tiktoken"):
+                logger.warning("tiktoken not available, tokenization will be limited")
+                return None
+            try:
+                if config.tokenizer_encoding:
+                    return tiktoken.get_encoding(config.tokenizer_encoding)
+                return tiktoken.encoding_for_model(self.model)
+            except KeyError:
+                logger.warning(f"Model {self.model} not found in tiktoken, using cl100k_base encoding")
+                return tiktoken.get_encoding("cl100k_base")
+        elif config.tokenizer_type == "cl100k_base":
+            if is_package_available("tiktoken"):
+                return tiktoken.get_encoding("cl100k_base")
+            logger.warning("tiktoken not available for cl100k_base encoding")
+        elif config.tokenizer_type == "none":
+            logger.info("Tokenizer disabled by configuration")
+        else:
+            logger.warning(f"Unknown tokenizer_type: {config.tokenizer_type}")
+        return None
 
     def _is_reasoning_model(self) -> bool:
         """Check if the model is a reasoning model."""
@@ -309,11 +307,19 @@ class OpenAICompatibleClient(LightevalModel):
 
     @staticmethod
     def _make_empty_response():
-        return type('obj', (object,), {
-            'choices': [type('obj', (object,), {
-                'message': type('obj', (object,), {'content': '', 'reasoning_content': None})()
-            })()]
-        })()
+        return type(
+            "obj",
+            (object,),
+            {
+                "choices": [
+                    type(
+                        "obj",
+                        (object,),
+                        {"message": type("obj", (object,), {"content": "", "reasoning_content": None})()},
+                    )()
+                ]
+            },
+        )()
 
     def __call_api(self, prompt, return_logits, max_new_tokens, num_samples, stop_sequence, grammar):  # noqa: C901
         """Make API call with retries."""
@@ -354,7 +360,7 @@ class OpenAICompatibleClient(LightevalModel):
         # Set max tokens using the configured parameter name
         if max_new_tokens:
             kwargs[self.config.max_tokens_param_name] = max_new_tokens
-        
+
         if self.generation_parameters.extra_body:
             kwargs["extra_body"] = self.generation_parameters.extra_body
 
@@ -377,7 +383,10 @@ class OpenAICompatibleClient(LightevalModel):
                             )
                             self._abort_event.set()
                     if self._abort_event.is_set() or attempt == self.API_MAX_RETRY - 1:
-                        return APICallError("empty_response", f"{self._empty_response_count} empty responses received, model may be unavailable")
+                        return APICallError(
+                            "empty_response",
+                            f"{self._empty_response_count} empty responses received, model may be unavailable",
+                        )
                     logger.info("Response is empty, retrying")
                     wait_time = min(64, self.API_RETRY_SLEEP * (self.API_RETRY_MULTIPLIER**attempt))
                     time.sleep(wait_time)
@@ -404,9 +413,7 @@ class OpenAICompatibleClient(LightevalModel):
                 errors.append(e)
                 wait_time = min(64, self.API_RETRY_SLEEP * (self.API_RETRY_MULTIPLIER**attempt))
                 with self._rate_limit_lock:
-                    self._rate_limit_resume_time = max(
-                        self._rate_limit_resume_time, time.time() + wait_time
-                    )
+                    self._rate_limit_resume_time = max(self._rate_limit_resume_time, time.time() + wait_time)
                 logger.warning(f"Rate limit hit, coordinating backoff of {wait_time}s")
                 time.sleep(wait_time)
 
@@ -422,9 +429,7 @@ class OpenAICompatibleClient(LightevalModel):
         with self._empty_count_lock:
             self._empty_response_count += 1
             if self._empty_response_count >= self.config.max_empty_responses_before_abort:
-                logger.error(
-                    f"Aborting: {self._empty_response_count} failures received, model may be unavailable."
-                )
+                logger.error(f"Aborting: {self._empty_response_count} failures received, model may be unavailable.")
                 self._abort_event.set()
         return APICallError("api_error", str(errors[-1]) if errors else "Unknown error after retries exhausted")
 
@@ -477,7 +482,9 @@ class OpenAICompatibleClient(LightevalModel):
                     progress_callback((len(results), len(prompts)))
                 if self._abort_event.is_set():
                     remaining = len(prompts) - len(results)
-                    results.extend([APICallError("aborted", "Evaluation aborted due to too many failures")] * remaining)
+                    results.extend(
+                        [APICallError("aborted", "Evaluation aborted due to too many failures")] * remaining
+                    )
                     break
 
         error_count = sum(1 for r in results if isinstance(r, APICallError))
@@ -500,6 +507,7 @@ class OpenAICompatibleClient(LightevalModel):
 
         Args:
             docs (list[Doc]): List of documents containing the context for generation.
+            progress_callback: Optional callback for reporting progress.
 
         Returns:
             list[ModelResponse]: list of generated responses.
@@ -554,6 +562,7 @@ class OpenAICompatibleClient(LightevalModel):
     @property
     def tokenizer(self):
         """Return a tokenizer wrapper."""
+
         # Create a wrapper object that has the encode method
         class TokenizerWrapper:
             def __init__(self, encoding):
@@ -586,7 +595,7 @@ class OpenAICompatibleClient(LightevalModel):
     @property
     def max_length(self) -> int:
         """Return the maximum sequence length of the model.
-        
+
         For provider-agnostic support, this should be set explicitly in the config.
         Falls back to OpenAI model dictionary for known models, then default value.
         """

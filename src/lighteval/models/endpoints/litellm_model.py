@@ -274,7 +274,9 @@ class LiteLLMClient(LightevalModel):
                 )
                 time.sleep(wait_time)
 
-        logger.error(f"API call failed after {self.API_MAX_RETRY} attempts, returning empty response. Errors: {errors}")
+        logger.error(
+            f"API call failed after {self.API_MAX_RETRY} attempts, returning empty response. Errors: {errors}"
+        )
         return LitellmModelResponse()
 
     def __call_api_parallel(
