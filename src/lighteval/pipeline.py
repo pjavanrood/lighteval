@@ -320,7 +320,10 @@ class Pipeline:
             logger.info(f"Running {sampling_method} requests")
             match sampling_method:
                 case SamplingMethod.GENERATIVE:
-                    model_outputs = self.model.greedy_until(docs, progress_callback=self.progress_callback)
+                    if self.progress_callback:
+                        model_outputs = self.model.greedy_until(docs, progress_callback=self.progress_callback)
+                    else:
+                        model_outputs = self.model.greedy_until(docs)
                     outputs[sampling_method] = model_outputs
                 case SamplingMethod.LOGPROBS:
                     model_outputs = self.model.loglikelihood(docs)
@@ -447,3 +450,15 @@ class Pipeline:
 
     def get_details(self):
         return self.evaluation_tracker.details_logger.details
+
+    def get_errors(self) -> dict[str, list[dict]]:
+        errors: dict[str, list[dict]] = {}
+        for task_name, details in self.evaluation_tracker.details_logger.details.items():
+            task_errors = [
+                {"doc_id": detail.doc.doc_id, "input": detail.model_response.input, "error": detail.model_response.error}
+                for detail in details
+                if detail.model_response.error is not None
+            ]
+            if task_errors:
+                errors[task_name] = task_errors
+        return errors

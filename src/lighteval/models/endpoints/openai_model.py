@@ -174,7 +174,7 @@ class OpenAICompatibleModelConfig(ModelConfig):
     api_retry_multiplier: float = 2.0
     timeout: float | None = None
     max_empty_responses_before_abort: int = 5
-    max_api_call_error_rate: float = 0.1
+    max_api_call_error_rate: float = 0.8 # if more than 80% of the API calls fail, raise an error
 
 
 @requires("openai")
@@ -373,7 +373,7 @@ class OpenAICompatibleClient(LightevalModel):
                 time.sleep(resume_wait)
 
             try:
-                logger.debug(f"Calling API with kwargs: {json.dumps(kwargs, indent=2)}")
+                logger.info(f"Calling API with kwargs: {json.dumps(kwargs, indent=2)}")
                 response = self.client.chat.completions.create(**kwargs)
                 content = response.choices[0].message.content
 
