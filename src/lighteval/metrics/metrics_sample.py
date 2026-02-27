@@ -41,9 +41,7 @@ from pydantic import BaseModel
 from scipy.stats import hypergeom
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
-from lighteval.metrics.imports.bert_scorer import BERTScorer
 from lighteval.metrics.imports.data_stats_metric import DataStatsMetric
-from lighteval.metrics.imports.summac import SummaCZS
 from lighteval.metrics.normalizations import (
     LogProbNormalization,
     LogProbTokenNorm,
@@ -640,6 +638,8 @@ class BertScore(SampleLevelComputation):
         predictions = model_response.final_text
 
         if self.bert_scorer is None:
+            from lighteval.metrics.imports.bert_scorer import BERTScorer
+
             logger.warning("The first metric computation step might be a bit longer as we need to download the model.")
             # We only initialize on first compute
             self.bert_scorer = BERTScorer(
@@ -749,6 +749,8 @@ class Faithfulness(SampleLevelComputation):
             dict[str, float]: The faithfulness scores.
         """
         if self.summac is None:
+            from lighteval.metrics.imports.summac import SummaCZS
+
             self.summac = SummaCZS(
                 granularity="sentence", model_name="vitc", imager_load_cache=False
             )  # , device=device)

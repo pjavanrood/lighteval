@@ -24,19 +24,28 @@ import logging
 import math
 from typing import Iterator
 
-import torch
-from packaging import version
-from torch.utils.data import Dataset, Subset
-
 from lighteval.tasks.requests import Doc
 
 
-if version.parse(torch.__version__) >= version.parse("2.5.0"):
-    from torch.utils.data.distributed import DistributedSampler, _T_co
-else:
-    from torch.utils.data.distributed import DistributedSampler
-    from torch.utils.data.distributed import T_co as _T_co
+try:
+    import torch
+    from packaging import version
+    from torch.utils.data import Dataset, Subset
 
+    if version.parse(torch.__version__) >= version.parse("2.5.0"):
+        from torch.utils.data.distributed import DistributedSampler, _T_co
+    else:
+        from torch.utils.data.distributed import DistributedSampler
+        from torch.utils.data.distributed import T_co as _T_co
+
+    _TORCH_AVAILABLE = True
+except ImportError:
+    torch = None
+    Dataset = object
+    Subset = None
+    DistributedSampler = None
+    _T_co = int
+    _TORCH_AVAILABLE = False
 
 logger = logging.getLogger(__name__)
 
@@ -107,18 +116,21 @@ class DynamicBatchDataset(Dataset):
 
         return original_order
 
-    def splits_iterator(self) -> Iterator[Subset]:
+    def splits_iterator(self) -> Iterator:
         """Iterator that yields the dataset splits based on the split limits.
 
         Yields:
-            Subset: A subset of the dataset.
+            Subset or list: A subset of the dataset (Subset when torch available, else list).
         """
         split_range = self.num_dataset_splits
         if self.total_size == 0:
             split_range = 0
         for i in range(split_range):
             split_start, split_end = self.splits[i]
-            yield Subset(self, range(split_start, split_end))
+            if _TORCH_AVAILABLE:
+                yield Subset(self, range(split_start, split_end))
+            else:
+                yield self.sorted_data[split_start:split_end]
 
     def __getitem__(self, index) -> Doc:
         """Get an item from the dataset.
@@ -267,33 +279,27 @@ class GenerativeTaskDatasetNanotron(GenerativeTaskDataset):
         return index, self.sorted_data[index + self.split_start]
 
 
-class GenDistributedSampler(DistributedSampler):
-    """A distributed sampler that copy the last element only when drop_last is False so we keep a small padding in the batches
-    as our samples are sorted by length.
-    """
+if _TORCH_AVAILABLE:
 
-    def __iter__(self) -> Iterator[_T_co]:
-        if self.shuffle:
-            # deterministically shuffle based on epoch and seed
-            g = torch.Generator()
-            g.manual_seed(self.seed + self.epoch)
-            indices = torch.randperm(len(self.dataset), generator=g).tolist()  # type: ignore[arg-type]
-        else:
-            indices = list(range(len(self.dataset)))  # type: ignore[arg-type]
+    class GenDistributedSampler(DistributedSampler):
+        """A distributed sampler that copy the last element only when drop_last is False so we keep a small padding in the batches
+        as our samples are sorted by length.
+        """
 
-        if not self.drop_last:
-            # add extra samples to make it evenly divisible
-            padding_size = self.total_size - len(indices)
-            indices += [
-                indices[-1]
-            ] * padding_size  # This is our only change here compared to the original DistributedSampler
-        else:
-            # remove tail of data to make it evenly divisible.
-            indices = indices[: self.total_size]
-        assert len(indices) == self.total_size
+        def __iter__(self) -> Iterator[_T_co]:
+            if self.shuffle:
+                g = torch.Generator()
+                g.manual_seed(self.seed + self.epoch)
+                indices = torch.randperm(len(self.dataset), generator=g).tolist()  # type: ignore[arg-type]
+            else:
+                indices = list(range(len(self.dataset)))  # type: ignore[arg-type]
 
-        # subsample
-        indices = indices[self.rank : self.total_size : self.num_replicas]
-        assert len(indices) == self.num_samples
-
-        return iter(indices)
+            if not self.drop_last:
+                padding_size = self.total_size - len(indices)
+                indices += [indices[-1]] * padding_size
+            else:
+                indices = indices[: self.total_size]
+            assert len(indices) == self.total_size
+            indices = indices[self.rank : self.total_size : self.num_replicas]
+            assert len(indices) == self.num_samples
+            return iter(indices)

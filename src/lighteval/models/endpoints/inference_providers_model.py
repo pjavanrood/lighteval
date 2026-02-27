@@ -31,7 +31,6 @@ from tqdm import tqdm
 from tqdm.asyncio import tqdm as async_tqdm
 from transformers import AutoTokenizer
 
-from lighteval.data import GenerativeTaskDataset
 from lighteval.models.abstract_model import LightevalModel, ModelConfig
 from lighteval.models.model_output import ModelResponse
 from lighteval.tasks.prompt_manager import PromptManager
@@ -212,6 +211,8 @@ class InferenceProvidersClient(LightevalModel):
         Returns:
             list[ModelResponse]: list of generated responses.
         """
+        from lighteval.data import GenerativeTaskDataset
+
         dataset = GenerativeTaskDataset(requests=docs, num_dataset_splits=self.DATASET_SPLITS)
         results = []
 

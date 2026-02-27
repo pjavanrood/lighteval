@@ -21,7 +21,6 @@
 # SOFTWARE.
 
 import logging
-from typing import Union
 
 from lighteval.models.abstract_model import LightevalModel, ModelConfig
 from lighteval.models.custom.custom_model import CustomModelConfig
@@ -32,28 +31,6 @@ from lighteval.models.endpoints.inference_providers_model import (
 )
 from lighteval.models.endpoints.litellm_model import LiteLLMClient, LiteLLMModelConfig
 from lighteval.models.endpoints.openai_model import OpenAICompatibleClient, OpenAICompatibleModelConfig
-from lighteval.models.endpoints.tgi_model import ModelClient, TGIModelConfig
-
-try:
-    from lighteval.models.endpoints.endpoint_model import (
-        InferenceEndpointModel,
-        InferenceEndpointModelConfig,
-        ServerlessEndpointModelConfig,
-    )
-    from lighteval.models.sglang.sglang_model import SGLangModel, SGLangModelConfig
-    from lighteval.models.transformers.adapter_model import AdapterModel, AdapterModelConfig
-    from lighteval.models.transformers.delta_model import DeltaModel, DeltaModelConfig
-    from lighteval.models.transformers.transformers_model import TransformersModel, TransformersModelConfig
-    from lighteval.models.transformers.vlm_transformers_model import VLMTransformersModel, VLMTransformersModelConfig
-    from lighteval.models.vllm.vllm_model import AsyncVLLMModel, VLLMModel, VLLMModelConfig
-except ImportError:
-    InferenceEndpointModel = InferenceEndpointModelConfig = ServerlessEndpointModelConfig = None
-    SGLangModel = SGLangModelConfig = None
-    AdapterModel = AdapterModelConfig = None
-    DeltaModel = DeltaModelConfig = None
-    TransformersModel = TransformersModelConfig = None
-    VLMTransformersModel = VLMTransformersModelConfig = None
-    AsyncVLLMModel = VLLMModel = VLLMModelConfig = None
 
 
 logger = logging.getLogger(__name__)
@@ -78,7 +55,13 @@ def load_model(  # noqa: C901
     if config_type in ("InferenceEndpointModelConfig", "ServerlessEndpointModelConfig"):
         return load_model_with_inference_endpoints(config)
 
-    if config_type in ("TransformersModelConfig", "VLMTransformersModelConfig", "AdapterModelConfig", "DeltaModelConfig", "VLLMModelConfig"):
+    if config_type in (
+        "TransformersModelConfig",
+        "VLMTransformersModelConfig",
+        "AdapterModelConfig",
+        "DeltaModelConfig",
+        "VLLMModelConfig",
+    ):
         return load_model_with_accelerate_or_default(config)
 
     if config_type == "DummyModelConfig":
@@ -100,7 +83,9 @@ def load_model(  # noqa: C901
         return load_openai_compatible_model(config=config)
 
 
-def load_model_with_tgi(config: TGIModelConfig):
+def load_model_with_tgi(config):
+    from lighteval.models.endpoints.tgi_model import ModelClient
+
     logger.info(f"Load model from inference server: {config.inference_server_address}")
     model = ModelClient(config=config)
     return model
@@ -140,13 +125,25 @@ def load_custom_model(config: CustomModelConfig):
     return model
 
 
-def load_model_with_inference_endpoints(config: Union[InferenceEndpointModelConfig, ServerlessEndpointModelConfig]):
+def load_model_with_inference_endpoints(config):
+    try:
+        from lighteval.models.endpoints.endpoint_model import InferenceEndpointModel
+    except ImportError as e:
+        raise ImportError("Inference endpoint models require PyTorch. Install with: pip install torch") from e
     logger.info("Spin up model using inference endpoint.")
     model = InferenceEndpointModel(config=config)
     return model
 
 
 def load_model_with_accelerate_or_default(config):
+    try:
+        from lighteval.models.transformers.adapter_model import AdapterModel
+        from lighteval.models.transformers.delta_model import DeltaModel
+        from lighteval.models.transformers.transformers_model import TransformersModel
+        from lighteval.models.transformers.vlm_transformers_model import VLMTransformersModel
+        from lighteval.models.vllm.vllm_model import AsyncVLLMModel, VLLMModel
+    except ImportError as e:
+        raise ImportError("Transformers/VLLM models require PyTorch. Install with: pip install torch") from e
     config_type = type(config).__name__
     if config_type == "AdapterModelConfig":
         model = AdapterModel(config=config)
@@ -173,7 +170,11 @@ def load_inference_providers_model(config: InferenceProvidersModelConfig):
     return InferenceProvidersClient(config=config)
 
 
-def load_sglang_model(config: SGLangModelConfig):
+def load_sglang_model(config):
+    try:
+        from lighteval.models.sglang.sglang_model import SGLangModel
+    except ImportError as e:
+        raise ImportError("SGLang model requires PyTorch. Install with: pip install torch") from e
     return SGLangModel(config=config)
 
 

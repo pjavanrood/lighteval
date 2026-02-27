@@ -35,11 +35,16 @@ from lighteval.models.model_input import GenerationParameters
 from lighteval.models.model_output import ModelResponse
 from lighteval.tasks.requests import Doc
 
+
 if TYPE_CHECKING:
     import torch
 
+try:
+    import torch as _torch
 
-TokenSequence = Union[list[int], torch.LongTensor, torch.Tensor, BatchEncoding]
+    TokenSequence = Union[list[int], _torch.LongTensor, _torch.Tensor, BatchEncoding]
+except ImportError:
+    TokenSequence = Union[list[int], BatchEncoding]
 
 
 class ModelConfig(BaseModel, extra="forbid"):

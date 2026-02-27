@@ -35,7 +35,6 @@ from tqdm import tqdm
 from lighteval.logging.evaluation_tracker import EvaluationTracker
 from lighteval.metrics import apply_metric
 from lighteval.models.abstract_model import LightevalModel, ModelConfig
-from lighteval.models.model_loader import TransformersModel, load_model
 from lighteval.models.model_output import (
     ModelResponse,
 )
@@ -184,6 +183,8 @@ class Pipeline:
                 raise ValueError(
                     "You are trying to provide both a LightevalModel and a model config. Please provide only one of them."
                 )
+            from lighteval.models.model_loader import TransformersModel
+
             return TransformersModel.from_model(
                 model=model,
                 config=model_config,
@@ -207,6 +208,8 @@ class Pipeline:
                     model_class=None,
                 )
             else:
+                from lighteval.models.model_loader import load_model
+
                 return load_model(config=model_config)
 
     def _init_tasks_and_requests(self, tasks: str):
@@ -455,7 +458,11 @@ class Pipeline:
         errors: dict[str, list[dict]] = {}
         for task_name, details in self.evaluation_tracker.details_logger.details.items():
             task_errors = [
-                {"doc_id": detail.doc.doc_id, "input": detail.model_response.input, "error": detail.model_response.error}
+                {
+                    "doc_id": detail.doc.doc_id,
+                    "input": detail.model_response.input,
+                    "error": detail.model_response.error,
+                }
                 for detail in details
                 if detail.model_response.error is not None
             ]
