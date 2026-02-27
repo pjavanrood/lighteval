@@ -20,9 +20,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from dataclasses import dataclass, field
+from __future__ import annotations
 
-import torch
+from dataclasses import dataclass, field
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import torch
 
 
 @dataclass

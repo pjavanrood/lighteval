@@ -26,11 +26,6 @@ from typing import Union
 from lighteval.models.abstract_model import LightevalModel, ModelConfig
 from lighteval.models.custom.custom_model import CustomModelConfig
 from lighteval.models.dummy.dummy_model import DummyModel, DummyModelConfig
-from lighteval.models.endpoints.endpoint_model import (
-    InferenceEndpointModel,
-    InferenceEndpointModelConfig,
-    ServerlessEndpointModelConfig,
-)
 from lighteval.models.endpoints.inference_providers_model import (
     InferenceProvidersClient,
     InferenceProvidersModelConfig,
@@ -38,12 +33,27 @@ from lighteval.models.endpoints.inference_providers_model import (
 from lighteval.models.endpoints.litellm_model import LiteLLMClient, LiteLLMModelConfig
 from lighteval.models.endpoints.openai_model import OpenAICompatibleClient, OpenAICompatibleModelConfig
 from lighteval.models.endpoints.tgi_model import ModelClient, TGIModelConfig
-from lighteval.models.sglang.sglang_model import SGLangModel, SGLangModelConfig
-from lighteval.models.transformers.adapter_model import AdapterModel, AdapterModelConfig
-from lighteval.models.transformers.delta_model import DeltaModel, DeltaModelConfig
-from lighteval.models.transformers.transformers_model import TransformersModel, TransformersModelConfig
-from lighteval.models.transformers.vlm_transformers_model import VLMTransformersModel, VLMTransformersModelConfig
-from lighteval.models.vllm.vllm_model import AsyncVLLMModel, VLLMModel, VLLMModelConfig
+
+try:
+    from lighteval.models.endpoints.endpoint_model import (
+        InferenceEndpointModel,
+        InferenceEndpointModelConfig,
+        ServerlessEndpointModelConfig,
+    )
+    from lighteval.models.sglang.sglang_model import SGLangModel, SGLangModelConfig
+    from lighteval.models.transformers.adapter_model import AdapterModel, AdapterModelConfig
+    from lighteval.models.transformers.delta_model import DeltaModel, DeltaModelConfig
+    from lighteval.models.transformers.transformers_model import TransformersModel, TransformersModelConfig
+    from lighteval.models.transformers.vlm_transformers_model import VLMTransformersModel, VLMTransformersModelConfig
+    from lighteval.models.vllm.vllm_model import AsyncVLLMModel, VLLMModel, VLLMModelConfig
+except ImportError:
+    InferenceEndpointModel = InferenceEndpointModelConfig = ServerlessEndpointModelConfig = None
+    SGLangModel = SGLangModelConfig = None
+    AdapterModel = AdapterModelConfig = None
+    DeltaModel = DeltaModelConfig = None
+    TransformersModel = TransformersModelConfig = None
+    VLMTransformersModel = VLMTransformersModelConfig = None
+    AsyncVLLMModel = VLLMModel = VLLMModelConfig = None
 
 
 logger = logging.getLogger(__name__)
@@ -60,38 +70,33 @@ def load_model(  # noqa: C901
     Returns:
         LightevalModel: The model that will be evaluated
     """
-    # Inference server loading
-    if isinstance(config, TGIModelConfig):
+    config_type = type(config).__name__
+
+    if config_type == "TGIModelConfig":
         return load_model_with_tgi(config)
 
-    if isinstance(config, InferenceEndpointModelConfig) or isinstance(config, ServerlessEndpointModelConfig):
+    if config_type in ("InferenceEndpointModelConfig", "ServerlessEndpointModelConfig"):
         return load_model_with_inference_endpoints(config)
 
-    if isinstance(config, TransformersModelConfig):
+    if config_type in ("TransformersModelConfig", "VLMTransformersModelConfig", "AdapterModelConfig", "DeltaModelConfig", "VLLMModelConfig"):
         return load_model_with_accelerate_or_default(config)
 
-    if isinstance(config, VLMTransformersModelConfig):
-        return load_model_with_accelerate_or_default(config)
-
-    if isinstance(config, DummyModelConfig):
+    if config_type == "DummyModelConfig":
         return load_dummy_model(config)
 
-    if isinstance(config, VLLMModelConfig):
-        return load_model_with_accelerate_or_default(config)
-
-    if isinstance(config, CustomModelConfig):
+    if config_type == "CustomModelConfig":
         return load_custom_model(config=config)
 
-    if isinstance(config, SGLangModelConfig):
+    if config_type == "SGLangModelConfig":
         return load_sglang_model(config)
 
-    if isinstance(config, LiteLLMModelConfig):
+    if config_type == "LiteLLMModelConfig":
         return load_litellm_model(config)
 
-    if isinstance(config, InferenceProvidersModelConfig):
+    if config_type == "InferenceProvidersModelConfig":
         return load_inference_providers_model(config=config)
 
-    if isinstance(config, OpenAICompatibleModelConfig):
+    if config_type == "OpenAICompatibleModelConfig":
         return load_openai_compatible_model(config=config)
 
 
@@ -141,21 +146,18 @@ def load_model_with_inference_endpoints(config: Union[InferenceEndpointModelConf
     return model
 
 
-def load_model_with_accelerate_or_default(
-    config: Union[
-        AdapterModelConfig, TransformersModelConfig, DeltaModelConfig, VLLMModelConfig, VLMTransformersModelConfig
-    ],
-):
-    if isinstance(config, AdapterModelConfig):
+def load_model_with_accelerate_or_default(config):
+    config_type = type(config).__name__
+    if config_type == "AdapterModelConfig":
         model = AdapterModel(config=config)
-    elif isinstance(config, DeltaModelConfig):
+    elif config_type == "DeltaModelConfig":
         model = DeltaModel(config=config)
-    elif isinstance(config, VLLMModelConfig):
+    elif config_type == "VLLMModelConfig":
         if config.is_async:
             model = AsyncVLLMModel(config=config)
         else:
             model = VLLMModel(config=config)
-    elif isinstance(config, VLMTransformersModelConfig):
+    elif config_type == "VLMTransformersModelConfig":
         model = VLMTransformersModel(config=config)
     else:
         model = TransformersModel(config=config)

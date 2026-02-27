@@ -31,7 +31,6 @@ from enum import Enum
 from io import BytesIO
 from pathlib import Path
 
-import torch
 from datasets import Dataset, load_dataset
 from datasets.utils.metadata import MetadataConfigs
 from huggingface_hub import DatasetCard, DatasetCardData, HfApi, HFSummaryWriter, hf_hub_url
@@ -79,10 +78,15 @@ class EnhancedJSONEncoder(json.JSONEncoder):
             # partial functions don't have __name__ so we have to unwrap the wrapped function
             elif hasattr(o, "func"):
                 return o.func.__name__
-        if isinstance(o, torch.dtype):
-            return str(o)
         if isinstance(o, Enum):
             return o.name
+        try:
+            import torch
+
+            if isinstance(o, torch.dtype):
+                return str(o)
+        except ImportError:
+            pass
         if hasattr(o, "__str__"):
             return str(o)
         try:

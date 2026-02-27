@@ -25,8 +25,6 @@ import gc
 import inspect
 import logging
 
-import torch
-
 from lighteval.utils.imports import raise_if_package_not_available
 
 
@@ -88,6 +86,8 @@ def find_executable_batch_size(function: callable = None, starting_batch_size: i
     batch_size = starting_batch_size
 
     def decorator(*args, **kwargs):
+        import torch
+
         nonlocal batch_size
         gc.collect()
         torch.cuda.empty_cache()
@@ -122,6 +122,8 @@ def test_all_gather(accelerator=None, parallel_context=None):
         accelerator (Optional): The accelerator object used for parallelism.
         parallel_context (Optional): The parallel context object used for parallelism.
     """
+    import torch
+
     if accelerator:
         raise_if_package_not_available("accelerate")
         logger.info("Test gather tensor")

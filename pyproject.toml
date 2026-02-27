@@ -62,9 +62,7 @@ dependencies = [
     "transformers>=4.54.0",
     "inspect-ai>=0.3.140",
     "openai",
-    "accelerate",
     "huggingface_hub[hf_xet]>=0.30.2",
-    "torch>=2.0,<3.0",
     "GitPython>=3.1.41", # for logging
     "datasets>=4.0.0",
     "pydantic",
@@ -94,6 +92,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+transformers = ["torch>=2.0,<3.0", "accelerate"]
 litellm = ["litellm[caching]>=1.66.0", "diskcache"]
 tgi = ["text-generation>=0.7.0"]
 optimum = ["optimum==1.12.0"]

@@ -20,12 +20,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from __future__ import annotations
+
 import json
 import re
 from abc import ABC, abstractmethod
-from typing import Optional, Union
+from typing import TYPE_CHECKING, Optional, Union
 
-import torch
 import yaml
 from pydantic import BaseModel
 from transformers.tokenization_utils_base import BatchEncoding, PreTrainedTokenizerBase
@@ -33,6 +34,9 @@ from transformers.tokenization_utils_base import BatchEncoding, PreTrainedTokeni
 from lighteval.models.model_input import GenerationParameters
 from lighteval.models.model_output import ModelResponse
 from lighteval.tasks.requests import Doc
+
+if TYPE_CHECKING:
+    import torch
 
 
 TokenSequence = Union[list[int], torch.LongTensor, torch.Tensor, BatchEncoding]
