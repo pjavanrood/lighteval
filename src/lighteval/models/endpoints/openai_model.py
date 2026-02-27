@@ -30,7 +30,6 @@ from unittest.mock import Mock
 
 from tqdm import tqdm
 
-from lighteval.data import GenerativeTaskDataset
 from lighteval.models.abstract_model import LightevalModel, ModelConfig
 from lighteval.models.model_output import ModelResponse
 from lighteval.tasks.prompt_manager import PromptManager
@@ -174,7 +173,9 @@ class OpenAICompatibleModelConfig(ModelConfig):
     api_retry_multiplier: float = 2.0
     timeout: float | None = None
     max_empty_responses_before_abort: int = 5
-    max_api_call_error_rate: float = 0.8 # if more than 80% of the API calls fail, raise an error
+    max_api_call_error_rate: float = 0.8  # if more than 80% of the API calls fail, raise an error
+    min_reasoning_tokens: int = 250
+    reasoning_token_multiplier: int = 10
 
 
 @requires("openai")
@@ -284,7 +285,10 @@ class OpenAICompatibleClient(LightevalModel):
 
         if self._is_reasoning_model():
             # Reasoning models need more tokens for reasoning content
-            max_new_tokens = min(max_new_tokens * 10, self.max_length)
+            max_new_tokens = min(
+                max(max_new_tokens * self.config.reasoning_token_multiplier, self.config.min_reasoning_tokens),
+                self.max_length,
+            )
             logger.warning(
                 f"Reasoning model detected, increasing max_new_tokens to {max_new_tokens} to allow for reasoning tokens"
             )
@@ -515,6 +519,8 @@ class OpenAICompatibleClient(LightevalModel):
         Returns:
             list[ModelResponse]: list of generated responses.
         """
+        from lighteval.data import GenerativeTaskDataset
+
         dataset = GenerativeTaskDataset(requests=docs, num_dataset_splits=self.DATASET_SPLITS)
         results = []
 
