@@ -172,7 +172,7 @@ class OpenAICompatibleModelConfig(ModelConfig):
     api_retry_sleep: float = 1.0
     api_retry_multiplier: float = 2.0
     timeout: float | None = None
-    max_empty_responses_before_abort: int = 5
+    max_empty_responses_before_abort: int = 4
     max_api_call_error_rate: float = 0.8  # if more than 80% of the API calls fail, raise an error
     min_reasoning_tokens: int = 250
     reasoning_token_multiplier: int = 10
@@ -327,23 +327,27 @@ class OpenAICompatibleClient(LightevalModel):
             },
         )()
 
-    def __call_api(self, prompt, return_logits, max_new_tokens, num_samples, stop_sequence, grammar):  # noqa: C901
-        """Make API call with retries."""
-        if self._abort_event.is_set():
-            return APICallError("aborted", "Evaluation aborted due to too many failures")
+    def _backoff_wait_time(self, attempt: int) -> float:
+        return min(64, self.api_retry_sleep * (self.api_retry_multiplier**attempt))
 
+    def _record_failure(self):
+        with self._empty_count_lock:
+            self._empty_response_count += 1
+            if self._empty_response_count >= self.config.max_empty_responses_before_abort:
+                logger.error(f"Aborting: {self._empty_response_count} failures received, model may be unavailable.")
+                self._abort_event.set()
+
+    def _build_request_kwargs(self, prompt, return_logits, max_new_tokens, num_samples, stop_sequence, grammar):
         stop_sequence = self._prepare_stop_sequence(stop_sequence)
         max_new_tokens = self._prepare_max_new_tokens(max_new_tokens)
         response_format = self._prepare_response_format(grammar)
 
-        # Prepare kwargs for chat completion
         kwargs = {
             "model": self.model,
             "messages": prompt,
             "n": num_samples,
         }
 
-        # Add optional parameters
         if response_format:
             kwargs["response_format"] = response_format
         if return_logits:
@@ -351,93 +355,112 @@ class OpenAICompatibleClient(LightevalModel):
         if stop_sequence and self.config.supports_stop_sequences:
             kwargs["stop"] = stop_sequence
 
-        # Add generation parameters based on support flags
         if self.config.supports_temperature:
             gen_params = self.generation_parameters.to_litellm_dict()
-            # Remove parameters that will be set separately
-            if "max_completion_tokens" in gen_params:
-                gen_params.pop("max_completion_tokens")  # We'll set it separately
-            if "max_tokens" in gen_params:
-                gen_params.pop("max_tokens")  # We'll set it separately
-            if "stop" in gen_params:
-                gen_params.pop("stop")  # Already handled above
+            gen_params.pop("max_completion_tokens", None)
+            gen_params.pop("max_tokens", None)
+            gen_params.pop("stop", None)
             kwargs.update(gen_params)
 
-        # Set max tokens using the configured parameter name
         if max_new_tokens:
             kwargs[self.config.max_tokens_param_name] = max_new_tokens
 
         if self.generation_parameters.extra_body:
             kwargs["extra_body"] = self.generation_parameters.extra_body
 
+        return kwargs
+
+    def _execute_request(self, kwargs):
+        try:
+            logger.info(f"Calling API with kwargs: {json.dumps(kwargs, indent=2)}")
+            response = self.client.chat.completions.create(**kwargs)
+            return ("success", response)
+        except BadRequestError as e:
+            error_message = str(e)
+            content_filter_keywords = ["content", "filter", "policy", "safety", "blocked", "moderation"]
+            if any(kw in error_message.lower() for kw in content_filter_keywords):
+                logger.warning(f"Response filtered by provider ({self.config.provider_name}): {error_message}")
+                return ("bad_request", APICallError("content_filter", error_message))
+            logger.error(f"BadRequestError: {e}")
+            self._record_failure()
+            return ("bad_request", APICallError("bad_request", error_message))
+        except RateLimitError as e:
+            return ("rate_limit", e)
+        except Exception as e:
+            return ("retry", e)
+
+    def _process_response(self, response, kwargs, length_retries):
+        finish_reason = getattr(response.choices[0], "native_finish_reason", None) or response.choices[0].finish_reason
+        if finish_reason == "length" and length_retries < 2:
+            current_max = kwargs.get(self.config.max_tokens_param_name)
+            if current_max:
+                kwargs[self.config.max_tokens_param_name] = current_max * 2
+                logger.warning(f"Response hit length limit, doubling max_new_tokens to {current_max * 2}")
+            return ("length_retry", length_retries + 1)
+
+        content = response.choices[0].message.content
+        if content and content.strip():
+            return ("success", response)
+        return ("empty", None)
+
+    def _check_abort_and_wait(self):
+        if self._abort_event.is_set():
+            return APICallError("aborted", "Evaluation aborted due to too many failures")
+        resume_wait = self._rate_limit_resume_time - time.time()
+        if resume_wait > 0:
+            time.sleep(resume_wait)
+        return None
+
+    def __call_api(self, prompt, return_logits, max_new_tokens, num_samples, stop_sequence, grammar):
+        """Make API call with retries."""
+        if self._abort_event.is_set():
+            return APICallError("aborted", "Evaluation aborted due to too many failures")
+
+        kwargs = self._build_request_kwargs(prompt, return_logits, max_new_tokens, num_samples, stop_sequence, grammar)
         errors = []
-        for attempt in range(self.api_max_retry):
-            resume_wait = self._rate_limit_resume_time - time.time()
-            if resume_wait > 0:
-                time.sleep(resume_wait)
+        attempt = 0
+        length_retries = 0
 
-            try:
-                logger.info(f"Calling API with kwargs: {json.dumps(kwargs, indent=2)}")
-                response = self.client.chat.completions.create(**kwargs)
-                content = response.choices[0].message.content
+        while attempt < self.api_max_retry:
+            abort_result = self._check_abort_and_wait()
+            if abort_result is not None:
+                return abort_result
 
-                if not content.strip():
-                    with self._empty_count_lock:
-                        self._empty_response_count += 1
-                        if self._empty_response_count >= self.config.max_empty_responses_before_abort:
-                            logger.error(
-                                f"Aborting: {self._empty_response_count} empty responses received, model may be unavailable."
-                            )
-                            self._abort_event.set()
-                    if self._abort_event.is_set() or attempt == self.api_max_retry - 1:
-                        return APICallError(
-                            "empty_response",
-                            f"{self._empty_response_count} empty responses received, model may be unavailable",
-                        )
-                    logger.info("Response is empty, retrying")
-                    wait_time = min(64, self.api_retry_sleep * (self.api_retry_multiplier**attempt))
-                    time.sleep(wait_time)
-                    continue
-
-                return response
-
-            except BadRequestError as e:
-                errors.append(e)
-                error_message = str(e)
-                # Check for content filtering (provider-agnostic)
-                content_filter_keywords = ["content", "filter", "policy", "safety", "blocked", "moderation"]
-                if any(keyword in error_message.lower() for keyword in content_filter_keywords):
-                    logger.warning(
-                        f"Response may have been filtered by provider ({self.config.provider_name}). "
-                        f"Error: {error_message}"
-                    )
-                    return APICallError("content_filter", error_message)
-                # For other bad requests, don't retry
-                logger.error(f"BadRequestError: {e}")
-                break
-
-            except RateLimitError as e:
-                errors.append(e)
-                wait_time = min(64, self.api_retry_sleep * (self.api_retry_multiplier**attempt))
+            status, result = self._execute_request(kwargs)
+            if status == "bad_request":
+                return result
+            if status == "rate_limit":
+                errors.append(result)
+                wait_time = self._backoff_wait_time(attempt)
                 with self._rate_limit_lock:
                     self._rate_limit_resume_time = max(self._rate_limit_resume_time, time.time() + wait_time)
                 logger.warning(f"Rate limit hit, coordinating backoff of {wait_time}s")
                 time.sleep(wait_time)
+                attempt += 1
+                continue
+            if status == "retry":
+                errors.append(result)
+                logger.warning(f"Error in API call: {result}, retry {attempt + 1}/{self.api_max_retry}")
+                time.sleep(self._backoff_wait_time(attempt))
+                attempt += 1
+                continue
 
-            except Exception as e:
-                errors.append(e)
-                wait_time = min(64, self.api_retry_sleep * (self.api_retry_multiplier**attempt))
-                logger.warning(
-                    f"Error in API call: {e}, waiting {wait_time} seconds before retry {attempt + 1}/{self.api_max_retry}"
-                )
-                time.sleep(wait_time)
+            process_status, process_result = self._process_response(result, kwargs, length_retries)
+            if process_status == "success":
+                return process_result
+            if process_status == "length_retry":
+                length_retries = process_result
+                continue
 
+            self._record_failure()
+            if self._abort_event.is_set():
+                return APICallError("empty_response", f"{self._empty_response_count} empty responses received")
+            logger.info("Response is empty, retrying")
+            time.sleep(self._backoff_wait_time(attempt))
+            attempt += 1
+
+        self._record_failure()
         logger.error(f"API call failed after {self.api_max_retry} attempts. Errors: {errors}")
-        with self._empty_count_lock:
-            self._empty_response_count += 1
-            if self._empty_response_count >= self.config.max_empty_responses_before_abort:
-                logger.error(f"Aborting: {self._empty_response_count} failures received, model may be unavailable.")
-                self._abort_event.set()
         return APICallError("api_error", str(errors[-1]) if errors else "Unknown error after retries exhausted")
 
     def __call_api_parallel(
