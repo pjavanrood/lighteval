@@ -172,8 +172,10 @@ class OpenAICompatibleModelConfig(ModelConfig):
     api_retry_sleep: float = 1.0
     api_retry_multiplier: float = 2.0
     timeout: float | None = None
-    max_empty_responses_before_abort: int = 4
-    max_api_call_error_rate: float = 0.8  # if more than 80% of the API calls fail, raise an error
+    max_rate_limit_retries: int = 3
+    max_empty_response_retries: int = 4
+    max_other_error_retries: int = 8
+    max_api_call_error_rate: float = 0.1  # Abort when failed/total > this; also raises at end if threshold exceeded
     min_reasoning_tokens: int = 250
     reasoning_token_multiplier: int = 10
 
@@ -219,8 +221,6 @@ class OpenAICompatibleClient(LightevalModel):
         self.timeout = config.timeout
 
         self._abort_event = threading.Event()
-        self._empty_response_count = 0
-        self._empty_count_lock = threading.Lock()
         self._rate_limit_lock = threading.Lock()
         self._rate_limit_resume_time = 0.0
 
@@ -330,13 +330,6 @@ class OpenAICompatibleClient(LightevalModel):
     def _backoff_wait_time(self, attempt: int) -> float:
         return min(64, self.api_retry_sleep * (self.api_retry_multiplier**attempt))
 
-    def _record_failure(self):
-        with self._empty_count_lock:
-            self._empty_response_count += 1
-            if self._empty_response_count >= self.config.max_empty_responses_before_abort:
-                logger.error(f"Aborting: {self._empty_response_count} failures received, model may be unavailable.")
-                self._abort_event.set()
-
     def _build_request_kwargs(self, prompt, return_logits, max_new_tokens, num_samples, stop_sequence, grammar):
         stop_sequence = self._prepare_stop_sequence(stop_sequence)
         max_new_tokens = self._prepare_max_new_tokens(max_new_tokens)
@@ -382,7 +375,6 @@ class OpenAICompatibleClient(LightevalModel):
                 logger.warning(f"Response filtered by provider ({self.config.provider_name}): {error_message}")
                 return ("bad_request", APICallError("content_filter", error_message))
             logger.error(f"BadRequestError: {e}")
-            self._record_failure()
             return ("bad_request", APICallError("bad_request", error_message))
         except RateLimitError as e:
             return ("rate_limit", e)
@@ -418,10 +410,12 @@ class OpenAICompatibleClient(LightevalModel):
 
         kwargs = self._build_request_kwargs(prompt, return_logits, max_new_tokens, num_samples, stop_sequence, grammar)
         errors = []
-        attempt = 0
+        rate_limit_count = 0
+        empty_count = 0
+        other_count = 0
         length_retries = 0
 
-        while attempt < self.api_max_retry:
+        while True:
             abort_result = self._check_abort_and_wait()
             if abort_result is not None:
                 return abort_result
@@ -431,18 +425,24 @@ class OpenAICompatibleClient(LightevalModel):
                 return result
             if status == "rate_limit":
                 errors.append(result)
-                wait_time = self._backoff_wait_time(attempt)
+                rate_limit_count += 1
+                if rate_limit_count > self.config.max_rate_limit_retries:
+                    logger.error(f"Document failed: {rate_limit_count} rate limit errors")
+                    return APICallError("rate_limit", str(result))
+                wait_time = self._backoff_wait_time(rate_limit_count + empty_count + other_count - 1)
                 with self._rate_limit_lock:
                     self._rate_limit_resume_time = max(self._rate_limit_resume_time, time.time() + wait_time)
                 logger.warning(f"Rate limit hit, coordinating backoff of {wait_time}s")
                 time.sleep(wait_time)
-                attempt += 1
                 continue
             if status == "retry":
                 errors.append(result)
-                logger.warning(f"Error in API call: {result}, retry {attempt + 1}/{self.api_max_retry}")
-                time.sleep(self._backoff_wait_time(attempt))
-                attempt += 1
+                other_count += 1
+                if other_count > self.config.max_other_error_retries:
+                    logger.error(f"Document failed: {other_count} other errors")
+                    return APICallError("api_error", str(result))
+                logger.warning(f"Error in API call: {result}, retry ({other_count}/{self.config.max_other_error_retries})")
+                time.sleep(self._backoff_wait_time(rate_limit_count + empty_count + other_count - 1))
                 continue
 
             process_status, process_result = self._process_response(result, kwargs, length_retries)
@@ -452,16 +452,12 @@ class OpenAICompatibleClient(LightevalModel):
                 length_retries = process_result
                 continue
 
-            self._record_failure()
-            if self._abort_event.is_set():
-                return APICallError("empty_response", f"{self._empty_response_count} empty responses received")
+            empty_count += 1
+            if empty_count > self.config.max_empty_response_retries:
+                logger.error(f"Document failed: {empty_count} empty responses")
+                return APICallError("empty_response", "Too many empty responses")
             logger.info("Response is empty, retrying")
-            time.sleep(self._backoff_wait_time(attempt))
-            attempt += 1
-
-        self._record_failure()
-        logger.error(f"API call failed after {self.api_max_retry} attempts. Errors: {errors}")
-        return APICallError("api_error", str(errors[-1]) if errors else "Unknown error after retries exhausted")
+            time.sleep(self._backoff_wait_time(rate_limit_count + empty_count + other_count - 1))
 
     def __call_api_parallel(
         self,
@@ -475,7 +471,6 @@ class OpenAICompatibleClient(LightevalModel):
     ):
         """Execute multiple API calls in parallel."""
         self._abort_event.clear()
-        self._empty_response_count = 0
         self._rate_limit_resume_time = 0.0
 
         results = []
@@ -510,6 +505,10 @@ class OpenAICompatibleClient(LightevalModel):
                 results.append(entry)
                 if progress_callback:
                     progress_callback((len(results), len(prompts)))
+                failed_count = sum(1 for r in results if isinstance(r, APICallError))
+                if len(prompts) > 0 and failed_count / len(prompts) > self.config.max_api_call_error_rate:
+                    logger.error(f"Aborting: {failed_count}/{len(prompts)} failures exceeds threshold")
+                    self._abort_event.set()
                 if self._abort_event.is_set():
                     remaining = len(prompts) - len(results)
                     results.extend(
